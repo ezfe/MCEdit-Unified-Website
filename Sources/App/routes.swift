@@ -145,7 +145,7 @@ func authenticated(on req: Request) throws -> Future<Bool> {
     return client.get("https://api.github.com/user?access_token=\(token)").flatMap(to: GithubUser.self) { response in
         return try response.content.decode(GithubUser.self)
     }.map(to: Bool.self) { user in
-        let whitelisted = ["ezfe"]
+        let whitelisted = ["ezfe", "Podshot", "Khroki", "TrazLander"]
         return whitelisted.contains(user.login)
     }
 }
