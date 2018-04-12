@@ -8,7 +8,7 @@
 
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script src="js/scripts.js"></script>
+<!--<script src="js/scripts.js"></script>-->
 
 <script src="js/marked.js"></script>
 
@@ -43,6 +43,8 @@ ga('send', 'pageview');
 #get(header-contents)
 </head>
 <body>
+#set("nav_page") {home}
+#embed("navbar")
 
 #get(body-contents)
 
