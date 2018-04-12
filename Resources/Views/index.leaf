@@ -1,0 +1,195 @@
+#set("title") { MCEdit Unified }
+
+#set("header-contents") {
+	<script src="js/index-trigger.js"></script>
+	<style>
+		@media (min-width: 992px) {
+			.releasenote-title {
+				text-align: right;
+			\}
+		\}
+		@media (max-width: 991px) {
+			.releasenote-title {
+				text-align: center;
+			\}
+		\}
+	</style>
+}
+
+#set("body-contents") {
+	<div class="container">
+		<div class="row" id="center_jumbo_row">
+			<div class="col-md-12">
+				<div class="jumbotron" style="text-align:center;" id="downloads">
+					<div class="row">
+						<div class="col-md-4" id="OSX-downloads-toplevel">
+							<span class="hidden-xs hidden-sm">
+								<i class="fab fa-apple fa-5x"></i>
+								<br><br><span style="font-size:16pt">macOS</span><br><br>
+							</span>
+							<span class="hidden-md hidden-lg">
+								<i class="fab fa-apple fa-2x"></i>
+								<span style="font-size:16pt">&nbsp;macOS<br></span>
+							</span>
+							<span id="OSX-downloads">
+								<a class="dl btn btn-default" href="#(latestRelease.mac.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a><br><br>
+							</span>
+						</div>
+						<div class="col-md-4" id="Win-downloads-toplevel">
+							<span class="hidden-xs hidden-sm">
+								<i class="fab fa-windows fa-5x"></i>
+								<br><br><span style="font-size:16pt">Windows</span><br><br>
+							</span>
+							<span class="hidden-md hidden-lg">
+								<br><br>
+								<i class="fab fa-windows fa-2x"></i>
+								<span style="font-size:16pt">&nbsp;Windows<br></span>
+							</span>
+							<span id="Win-downloads">
+								<a class="dl btn btn-default" href="#(latestRelease.win32.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version  #(latestRelease.version) 32bit</a>
+								<br><br>
+								<a class="dl btn btn-default" href="#(latestRelease.win64.browser_download_url)"><i class="fa fa-cloud-download-alt"></i> Version  #(latestRelease.version) 64bit</a>
+							</span>
+						</div>
+						<div class="col-md-4" id="Lin-downloads-toplevel">
+							<span class="hidden-xs hidden-sm">
+								<i class="fab fa-linux fa-5x"></i>
+								<br><br><span style="font-size:16pt">Linux <span class="label label-warning">Beta</span></span><br><br>
+							</span>
+							<span class="hidden-md hidden-lg">
+								<br><br>
+								<i class="fab fa-linux fa-2x"></i>
+								<span style="font-size:16pt">&nbsp;Linux <span class="label label-warning">Beta</span><br></span>
+							</span>
+							<span id="Lin-downloads">
+								<a class="dl btn btn-default" href="#(latestRelease.linux.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a><br><br>
+							</span>
+						</div>
+					</div>
+
+					<!-- Row to reveal all platforms on md/lg -->
+					<div class="row hidden-xs hidden-sm override-platform-specific-downloads-container" style="position:absolute;bottom:30px;right:70px;display:none;">
+						<div class="col-md-12">
+							<i class="fa fa-star"></i> Click <a href="#" class="override-platform-specific-downloads">here</a> to view all versions
+						</div>
+					</div>
+
+					<!-- Row to see beta -->
+					<div class="row hidden-xs hidden-sm beta-container" style="position:absolute;bottom:30px;right:70px;display:none;">
+						<div class="col-md-12">
+							<i class="fa fa-star"></i> Click <a href="https://github.com/Podshot/MCEdit-Unified-Preview/releases">here</a> for test releases (Windows)
+						</div>
+					</div>
+
+					<!-- Linux source on md/lg -->
+					<div class="row hidden-xs hidden-sm" style="position:absolute;bottom:50px;">
+						<div class="col-md-12">
+							<i class="fab fa-linux"></i> Linux users can also <a href="http://github.com/Podshot/MCEdit-Unified/releases">run from source.</a>
+						</div>
+					</div>
+
+					<!-- Pre-anvil on md/lg -->
+					<div class="row hidden-xs hidden-sm" style="position:absolute;bottom:30px;">
+						<div class="col-md-12">
+							<i class="fa fa-history"></i> Pre-Anvil versions can be found at <a href="https://github.com/Khroki/mcedit-old/releases?after=0.1.6build315">this page.</a>
+						</div>
+					</div>
+
+					<!-- Line-break on sm/xs -->
+					<div class="row hidden-md hidden-lg">
+						<br>
+					</div>
+
+					<!-- Row to reveal all platforms on sm/xs -->
+					<div class="row hidden-md hidden-lg override-platform-specific-downloads-container" style="display:none; text-align:center;">
+						<div class="col-md-12">
+							<i class="fa fa-star"></i> Click <a href="#" class="override-platform-specific-downloads">here</a> to view other platforms
+						</div>
+					</div>
+
+					<!-- Linux on sm/xs -->
+					<div class="row hidden-md hidden-lg" style="text-align:center;">
+						<div class="col-md-12">
+							<i class="fab fa-linux"></i> Linux users can also <a href="http://github.com/Podshot/MCEdit-Unified/releases">run from source.</a>
+						</div>
+					</div>
+
+					<!-- Pre-anvil on sm/xs -->
+					<div class="row hidden-md hidden-lg" style="text-align:center;">
+						<div class="col-md-12">
+							<i class="fa fa-history"></i> Pre-Anvil versions can be found at <a href="https://github.com/Khroki/mcedit-old/releases?after=0.1.6build315">this page.</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div>
+				<!-- changelog -->
+
+				#for(release in releases) {
+					<div class="row releasenote">
+						<div class="col-md-2 releasenote-title">
+							<div style="padding-right:10px;">
+								<h2 style="display: inline;">
+									<a href="#(release.htmlURL)">#(release.version)</a>
+								</h2>
+								<br>
+								<a class="badge download-badge">#(release.totalDownloadCount) downloads</a>
+								
+								<br>
+								<div class="row" style="padding-right:15px;">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+											<i class="fab fa-windows"></i> <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu" role="menu">
+											<li>
+												<a href="#(release.win64.browser_download_url)">64 bit</a>
+											</li>
+											<li>
+												<a href="#(release.win32.browser_download_url)">32 bit</a>
+											</li>
+										</ul>
+									</div>
+									<a href="#(release.mac.browser_download_url)" class="btn btn-xs btn-primary">	<i class="fab fa-apple"></i>
+									</a>
+									<a href="#(release.linux.browser_download_url)" class="btn btn-xs btn-primary">
+										<i class="fab fa-linux"></i>
+									</a>
+								</div>
+
+								#if(release.metadata.commentURL) {
+									Comment <a href="#(release.metadata.commentURL)">Here</a>
+								} else {
+                                    Comments unavailable
+                                }
+								#if(authenticated) {
+									<button onclick="setURL('#(release.metadata.id)', prompt('Enter URL...'))">Set URL</button>
+								}
+								<br>
+								#if(release.prerelease) {
+									Pre-release<br>
+								}
+								#(release.publishedAt)
+							</div>
+						</div>
+						<div class="col-md-10">
+							<p>#get(release.releaseNotes)</p>
+						</div>
+					</div>
+					#if(!isLast) {
+						<hr/>
+					}
+				}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-md-offset-5" style="text-align:center;">
+			<ul class="pager">
+				<li class="previous"><a href="https://github.com/Podshot/MCEdit-Unified/releases">More Releases <i class="fab fa-github"></i></a></li>
+			</ul>
+		</div>
+	</div>
+}
+
+#embed("master")

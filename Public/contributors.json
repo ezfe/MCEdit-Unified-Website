@@ -1,0 +1,62 @@
+{
+	"TrazLander": {
+		"role": "Scout/Hunter",
+		"twitter": "TrazLander",
+		"youtube": "TrazLand",
+		"reddit": "TrazLander"
+	},
+	"Khroki": {
+		"role": "Organizer",
+		"reddit": "Karthex"
+	},
+	"Podshot": {
+		"role": "Code Wizard",
+		"twitter": "Podshot_",
+		"reddit": "Podshot"
+	},
+	"ezfe": {
+		"role": "Web Developer",
+		"twitter": "superezfe",
+		"youtube": "EzekielFilms",
+		"reddit": "superezfe",
+		"webcheck": true
+	},
+	"Aiybe": {
+		
+	},
+	"Rubisk": {
+		"role": "Brush Code",
+		"twitter": "Rubisks",
+		"youtube": "RubiskMC",
+		"reddit": "Rubisk"
+	},
+	"naor2013": {
+		"role": "Jack of All Trades"
+	},
+	"LaChal": {
+		"role": "Translation Code"
+	},
+	"freundTech": {
+		"role": "(Just another) Linux Guy",
+		"twitter": "freundTech",
+		"youtube": "freundTech",
+		"reddit": "freundTech"
+	},
+	"MobileCrafter": {
+		"role": "German Translation"
+	},
+	"OniOniOn-": {
+		"role": "Korean Translation"
+	},
+	"codewarrior0": {
+		"role": "Original Creator"
+	},
+	"DragonQuiz": {
+		"role": "Website Tech"
+	},
+	"codewarrior0": {
+		"role": "Original Creator",
+		"twitter": "codewarrior0",
+		"reddit": "codewarrior0"
+	}
+}

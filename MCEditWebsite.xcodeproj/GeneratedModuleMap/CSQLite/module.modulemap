@@ -1,0 +1,4 @@
+module CSQLite {
+    umbrella "/Users/ezekielelin/Library/Mobile Documents/com~apple~CloudDocs/Developer/Swift/MCEditWebsite/.build/checkouts/sqlite.git--8232814251736334455/Sources/CSQLite/include"
+    export *
+}
