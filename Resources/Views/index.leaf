@@ -160,16 +160,28 @@
 								#if(release.metadata.commentURL) {
 									Comment <a href="#(release.metadata.commentURL)">Here</a>
 								} else {
-                                    Comments unavailable
-                                }
-								#if(authenticated) {
-									<button onclick="setURL('#(release.metadata.id)', prompt('Enter URL...'))">Set URL</button>
+									Comments unavailable
 								}
 								<br>
 								#if(release.prerelease) {
 									Pre-release<br>
 								}
-								#(release.publishedAt)
+								Released #date(release.publishedAt, "MMM d, yyyy")
+
+								#if(authenticated) {
+									<div>
+										<form action="/setCommentURL/#(release.metadata.id)" method="post">
+											<input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url"/>
+											<button class="btn btn-default btn-block" type="submit">#if(release.metadata.commentURL){Update}else{Set}&nbsp;URL</button>
+										</form>
+
+										#if(release.metadata.commentURL) {
+											<form action="/removeCommentURL/#(release.metadata.id)" method="post">
+												<button style="margin-top: 5px;" class="btn btn-danger btn-block" type="submit">Remove URL</button>
+											</form>
+										}
+									</div>
+								}
 							</div>
 						</div>
 						<div class="col-md-10">
@@ -192,4 +204,5 @@
 	</div>
 }
 
+#set("nav_page") {home}
 #embed("master")

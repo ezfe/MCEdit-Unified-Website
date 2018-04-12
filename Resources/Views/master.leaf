@@ -43,7 +43,6 @@ ga('send', 'pageview');
 #get(header-contents)
 </head>
 <body>
-#set("nav_page") {home}
 #embed("navbar")
 
 #get(body-contents)
@@ -53,6 +52,7 @@ ga('send', 'pageview');
 &copy; 2010-2014 David Rio Vierra (<a href="https://twitter.com/codewarrior0">Codewarrior0</a>).
 &copy; 2014-2015 <a href="http://podshot.github.io/MCEdit-Unified/contributors.html">Khroki and all of the contributers</a>.
 All Rights Reserved to their respective ownership.
+<a href="/auth/new">Login</a>
 </div>
 </body>
 </html>

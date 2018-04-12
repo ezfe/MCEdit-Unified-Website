@@ -41,29 +41,39 @@ public func routes(_ router: Router) throws {
         }
     }
     
-    router.post("setCommentURL", UUID.parameter) { req -> Future<String> in
+    router.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
         let metadataID = try req.parameter(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
+        
+        return try updateCommentURL(on: req, id: metadataID, with: url)
+    }
 
-        return try authenticated(on: req).flatMap(to: String.self) { authed in
+    router.post("removeCommentURL", UUID.parameter) { req -> Future<Response> in
+        let metadataID = try req.parameter(UUID.self)
+        
+        return try updateCommentURL(on: req, id: metadataID, with: nil)
+    }
+    
+    func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
+        return try authenticated(on: req).flatMap(to: Response.self) { authed in
             guard authed else {
                 throw Abort(.forbidden)
             }
             
-            return try ReleaseMetaData.query(on: req).filter(\.id == metadataID).first().map(to: String.self) { releaseMetadata in
+            return try ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
                 if var releaseMetadata = releaseMetadata {
                     print("Found metadata object")
-                    print("assigning url \(url)")
+                    print("assigning url \(String(describing: url))")
                     releaseMetadata.commentURL = url
                     _ = releaseMetadata.save(on: req)
                 } else {
-                    print("No metadata object with id: \(metadataID)")
+                    print("No metadata object with id: \(id)")
                 }
-                return "OK"
+                return req.redirect(to: "/")
             }
         }
     }
-    
+
     router.get("auth", "new") { req -> Response in
         let session = try req.session()
         let stateString = "12345"
@@ -132,6 +142,10 @@ public func routes(_ router: Router) throws {
 }
 
 func authenticated(on req: Request) throws -> Future<Bool> {
+//    return Future.map(on: req) {
+//        return true
+//    }
+    
     let session = try req.session()
     guard let token = session["github_oauth_access_token"] else {
         return Future.map(on: req) { return false }
