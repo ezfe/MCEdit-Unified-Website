@@ -1,23 +1,9 @@
-function setURL(id, url) {
-    fetch(`/setCommentURL/${id}`, {
-        method: 'post',
-        body: JSON.stringify({ url: url }),
-        credentials: 'same-origin',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    }).then(res => {
-        console.log(res)
-    })
-}
-
-function pageTrigger() {
+window.onload = function() {
     var is_OSX = navigator.platform.match(/(Mac)/i);
     var is_Win = (navigator.platform.match(/(Win)/i) && !is_OSX);
-    
+
     $('.beta-container').hide();
-    
+
     if (is_OSX) {
         $('#Win-downloads-toplevel').hide();
         $('#Lin-downloads-toplevel').hide();

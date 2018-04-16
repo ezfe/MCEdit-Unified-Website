@@ -40,7 +40,7 @@ public func routes(_ router: Router) throws {
             }
         }
     }
-    
+
     router.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
         let metadataID = try req.parameter(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
@@ -72,6 +72,14 @@ public func routes(_ router: Router) throws {
                 return req.redirect(to: "/")
             }
         }
+    }
+    
+    router.get("about") { req -> Future<View> in
+        return try req.view().render("about")
+    }
+    
+    router.get("tutorial") { req -> Future<View> in
+        return try req.view().render("tutorial")
     }
 
     router.get("auth", "new") { req -> Response in

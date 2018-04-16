@@ -15,10 +15,10 @@
 					<a href="/"><i class="fa fa-home"></i></a>
 				</li>
 				<li class="#if(nav_page=="about") {active}">
-					<a href="/about.html">About</a>
+					<a href="/about">About</a>
 				</li>
 				<li class="#if(nav_page=="tutorial") {active}">
-					<a href="/tutorial.html">Tutorial</a>
+					<a href="/tutorial">Tutorial</a>
 				</li>
 				<li class="#if(nav_page=="requirements") {active}">
 					<a href="/requirements.html">System Requirements</a>

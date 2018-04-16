@@ -41,6 +41,7 @@ ga('send', 'pageview');
 -->
 
 #get(header-contents)
+<script>pageTrigger()</script>
 </head>
 <body>
 #embed("navbar")
