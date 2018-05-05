@@ -36,7 +36,7 @@ public func configure(
     
     try services.register(FluentSQLiteProvider())
     
-    var databaseConfig = DatabaseConfig()
+    var databaseConfig = DatabasesConfig()
     let db = try SQLiteDatabase(storage: .file(path: "\(directoryConfig.workDir)instantcoder.db"))
     databaseConfig.add(database: db, as: .sqlite)
     services.register(databaseConfig)

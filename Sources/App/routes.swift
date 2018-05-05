@@ -7,7 +7,7 @@ import Fluent
 ///
 /// [Learn More →](https://docs.vapor.codes/3.0/getting-started/structure/#routesswift)
 public func routes(_ router: Router) throws {
-
+    
     router.get { req -> Future<View> in
         struct Context: Codable {
             let releases: [Release]
@@ -25,31 +25,31 @@ public func routes(_ router: Router) throws {
                     } else {
                         return ReleaseMetaData(id: nil, releaseID: release.id, commentURL: nil).create(on: req)
                     }
-                }.map(to: Release.self) { rmd in
-                    var releasePlus = release
-                    releasePlus.metadata = rmd
-                    return releasePlus
+                    }.map(to: Release.self) { rmd in
+                        var releasePlus = release
+                        releasePlus.metadata = rmd
+                        return releasePlus
                 }
-            }.flatten(on: req)
-        }.flatMap(to: View.self) { releases in
-            return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
-                return try authenticated(on: req).flatMap(to: View.self) { authed in
-                    let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
-                    return try req.view().render("index", context)
+                }.flatten(on: req)
+            }.flatMap(to: View.self) { releases in
+                return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
+                    return try authenticated(on: req).flatMap(to: View.self) { authed in
+                        let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
+                        return try req.view().render("index", context)
+                    }
                 }
-            }
         }
     }
-
+    
     router.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
-        let metadataID = try req.parameter(UUID.self)
+        let metadataID = try req.parameters.next(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
         
         return try updateCommentURL(on: req, id: metadataID, with: url)
     }
-
+    
     router.post("removeCommentURL", UUID.parameter) { req -> Future<Response> in
-        let metadataID = try req.parameter(UUID.self)
+        let metadataID = try req.parameters.next(UUID.self)
         
         return try updateCommentURL(on: req, id: metadataID, with: nil)
     }
@@ -81,7 +81,24 @@ public func routes(_ router: Router) throws {
     router.get("tutorial") { req -> Future<View> in
         return try req.view().render("tutorial")
     }
-
+    
+    router.get("requirements") { req -> Future<View> in
+        return try req.view().render("requirements")
+    }
+    
+    router.get("contributors") { req -> Future<View> in
+        let client = try req.make(Client.self)
+        let authedUser = try currentUser(on: req)
+        let contributors = try getContributors(on: req)
+        let totalContributions = contributors.map { contributors in
+            return contributors.reduce(0, { (counter, contributor) -> Int in
+                return counter + contributor.contributions
+            })
+        }
+        
+        
+    }
+    
     router.get("auth", "new") { req -> Response in
         let session = try req.session()
         let stateString = "12345"
@@ -105,7 +122,7 @@ public func routes(_ router: Router) throws {
         let session = try req.session()
         
         if state != session["github_oauth_state"] {
-            print("Expected \(session["github_oauth_state"]) but got \(state)")
+            print("Expected \(String(describing: session["github_oauth_state"])) but got \(state)")
             throw Abort(.forbidden)
         }
         
@@ -128,15 +145,15 @@ public func routes(_ router: Router) throws {
         let client = try req.make(Client.self)
         return client.post("https://github.com/login/oauth/access_token", headers: headers, content: requestContent).flatMap(to: GithubAccessTokenResponse.self) { response in
             return try response.content.decode(GithubAccessTokenResponse.self)
-        }.map(to: Response.self) { GAT in
-            session["github_oauth_access_token"] = GAT.access_token
-            return req.redirect(to: "/")
+            }.map(to: Response.self) { GAT in
+                session["github_oauth_access_token"] = GAT.access_token
+                return req.redirect(to: "/")
         }
     }
     
     router.get("cache", "invalidate") { req -> String in
         let cache = try req.make(MemoryKeyedCache.self)
-        _ = try cache.remove("releases")
+        _ = cache.remove("releases")
         return "OK"
     }
     
@@ -149,26 +166,26 @@ public func routes(_ router: Router) throws {
     }
 }
 
-func authenticated(on req: Request) throws -> Future<Bool> {
-//    return Future.map(on: req) {
-//        return true
-//    }
-    
+func currentUser(on req: Request) throws -> Future<GithubUser?> {
     let session = try req.session()
     guard let token = session["github_oauth_access_token"] else {
-        return Future.map(on: req) { return false }
-    }
-    
-    struct GithubUser: Codable {
-        let login: String
+        return Future.map(on: req) { return nil }
     }
     
     let client = try req.make(Client.self)
-    return client.get("https://api.github.com/user?access_token=\(token)").flatMap(to: GithubUser.self) { response in
-        return try response.content.decode(GithubUser.self)
-    }.map(to: Bool.self) { user in
-        let whitelisted = ["ezfe", "Podshot", "Khroki", "TrazLander"]
-        return whitelisted.contains(user.login)
+    return client.get("https://api.github.com/user?access_token=\(token)").flatMap(to: GithubUser?.self) { response in
+        return try response.content.decode(GithubUser?.self)
+    }
+}
+
+func authenticated(on req: Request) throws -> Future<Bool> {
+    return try currentUser(on: req).map(to: Bool.self) { user in
+        if let user = user {
+            let whitelisted = ["ezfe", "Podshot", "Khroki", "TrazLander"]
+            return whitelisted.contains(user.login)
+        } else {
+            return false
+        }
     }
 }
 
@@ -176,7 +193,7 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
     let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
     
     let cache = try req.make(MemoryKeyedCache.self)
-    return try cache.get(Release.self, forKey: "latest_release").flatMap(to: Release.self) { release in
+    return cache.get("latest_release", as: Release.self).flatMap(to: Release.self) { release in
         if let release = release {
             /* cache */
             print("Fetching from Cache")
@@ -195,7 +212,7 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
                         throw Abort(.internalServerError)
                     }
                     
-                    return try cache.set(release, forKey: "latest_release").map(to: Release.self) {
+                    return cache.set("latest_release", to: release).map(to: Release.self) {
                         return release
                     }
             }
@@ -203,28 +220,47 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
     }
 }
 
+func getContributors(on req: Request) throws -> Future<[GithubContributor]> {
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
+    
+    let cache = try req.make(MemoryKeyedCache.self)
+    return cache.get("contributors", as: [GithubContributor].self).flatMap({ users in
+        if let users = users {
+            return Future.map(on: req) {
+                return users
+            }
+        } else {
+            let client = try req.make(Client.self)
+            return client.get(url).flatMap(to: [GithubContributor].self) { response in
+                return try response.content.decode([GithubContributor].self)
+                }.flatMap(to: [GithubContributor].self) { users in
+                    return cache.set("contributors", to: users).map(to: [GithubContributor].self) {
+                        return users
+                    }
+            }
+        }
+    })
+}
+
 func getReleases(on req: Request) throws -> Future<[Release]> {
     let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
     
     let cache = try req.make(MemoryKeyedCache.self)
-    return try cache.get([Release].self, forKey: "releases").flatMap(to: [Release].self) { releases in
+    return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
         if let releases = releases {
-            /* cache */
-            print("Fetching from Cache")
+            // Return the value found in the cache
             return Future.map(on: req) {
                 return releases
             }
         } else {
-            /* network */
+            // Nothing is in the cache, need to make a trip to
             let client = try req.make(Client.self)
             return client.get(url).flatMap(to: [GithubRelease].self) { response in
-                print("Fetching from Internet")
                 return try response.content.decode([GithubRelease].self)
                 }.flatMap(to: [Release].self) { ghReleases in
-                    print("Storing in Cache")
                     let releases = ghReleases.compactMap { Release(from: $0) }
                     
-                    return try cache.set(releases, forKey: "releases").map(to: [Release].self) {
+                    return cache.set("releases", to: releases).map(to: [Release].self) {
                         return releases
                     }
             }

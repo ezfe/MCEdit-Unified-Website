@@ -8,6 +8,11 @@
 import Vapor
 import SwiftMarkdown
 
+/**
+ * Container for the data returned from the Github API specifying a specific release
+ *
+ * Converted to Release object for use in program
+ */
 struct GithubRelease: Content {
     let htmlURL: String
     let id: Int
@@ -29,6 +34,7 @@ struct GithubRelease: Content {
     }
 }
 
+/// Specific version of MCEdit
 struct Release: Content {
     let htmlURL: String
     let id: Int
@@ -110,3 +116,34 @@ struct GithubAsset: Content {
         case browserDownloadURL = "browser_download_url"
     }
 }
+
+protocol GithubIdentity: Content {
+    var id: Int { get }
+    var login: String { get }
+    var avatarURL: String { get }
+}
+
+struct GithubUser: GithubIdentity {
+    let id: Int
+    let login: String
+    let avatarURL: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id, login
+        case avatarURL = "avatar_url"
+    }
+}
+
+struct GithubContributor: GithubIdentity {
+    let id: Int
+    let login: String
+    let avatarURL: String
+    let contributions: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case id, login
+        case avatarURL = "avatar_url"
+        case contributions
+    }
+}
+

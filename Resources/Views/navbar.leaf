@@ -21,7 +21,7 @@
 					<a href="/tutorial">Tutorial</a>
 				</li>
 				<li class="#if(nav_page=="requirements") {active}">
-					<a href="/requirements.html">System Requirements</a>
+					<a href="/requirements">System Requirements</a>
 				</li>
 				<li class="#if(nav_page=="contributors") {active}">
 					<a href="/contributors.html"><i class="fa fa-users"></i> Contributors</a>

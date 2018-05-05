@@ -1,0 +1,33 @@
+#set("title") { MCEdit Unified – Contributors }
+
+#set("header-contents") {
+	<style>
+		.circle {
+			border-radius: 50%;
+			width: 12px;
+			height: 12px;
+			position: absolute;
+			right: 19px;
+			top: 4px;
+			border: 1px solid white;
+			border-top-right-radius: 0px;
+		}
+		.contrib-success {
+			background-color: green;
+		}
+		.contrib-danger {
+			background-color: red;
+		}
+		.contrib-old {
+			background-color: orange;
+		}
+	</style>
+}
+
+#set("body-contents") {
+	<div class="container">
+		<div id="contributors" class="row"></div>
+	</div>
+}
+#set("nav_page") {contributors}
+#embed("master")
