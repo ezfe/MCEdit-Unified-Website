@@ -139,11 +139,13 @@ struct GithubContributor: GithubIdentity {
     let login: String
     let avatarURL: String
     let contributions: Int
+    let htmlURL: String
     
     enum CodingKeys: String, CodingKey {
         case id, login
         case avatarURL = "avatar_url"
         case contributions
+        case htmlURL = "html_url"
     }
 }
 

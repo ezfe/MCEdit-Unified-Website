@@ -87,6 +87,10 @@ public func routes(_ router: Router) throws {
     }
     
     router.get("contributors") { req -> Future<View> in
+        struct ContributorContext: Encodable {
+            var contributors: [GithubContributor]
+        }
+        
         let client = try req.make(Client.self)
         let authedUser = try currentUser(on: req)
         let contributors = try getContributors(on: req)
@@ -95,8 +99,11 @@ public func routes(_ router: Router) throws {
                 return counter + contributor.contributions
             })
         }
-        
-        
+
+        return contributors.flatMap(to: View.self) { contributors in
+            let ctx = ContributorContext(contributors: contributors)
+            return try req.view().render("contributors", ctx)
+        }
     }
     
     router.get("auth", "new") { req -> Response in
@@ -143,7 +150,9 @@ public func routes(_ router: Router) throws {
         headers.add(name: "Accepts", value: "application/json")
         
         let client = try req.make(Client.self)
-        return client.post("https://github.com/login/oauth/access_token", headers: headers, content: requestContent).flatMap(to: GithubAccessTokenResponse.self) { response in
+        return client.post("https://github.com/login/oauth/access_token", headers: headers, beforeSend: { (req) in
+            try req.content.encode(requestContent)
+        }).flatMap(to: GithubAccessTokenResponse.self) { response in
             return try response.content.decode(GithubAccessTokenResponse.self)
             }.map(to: Response.self) { GAT in
                 session["github_oauth_access_token"] = GAT.access_token

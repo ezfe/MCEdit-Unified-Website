@@ -19,7 +19,7 @@ public func configure(
     // Configure the rest of your application here
     
     try services.register(LeafProvider())
-    config.prefer(LeafRenderer.self, for: TemplateRenderer.self)
+    config.prefer(LeafRenderer.self, for: ViewRenderer.self)
     
     //MARK: File and Sessions Middleware
     var middleware = MiddlewareConfig.default()

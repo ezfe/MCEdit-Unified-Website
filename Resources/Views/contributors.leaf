@@ -11,22 +11,47 @@
 			top: 4px;
 			border: 1px solid white;
 			border-top-right-radius: 0px;
-		}
+		\}
 		.contrib-success {
 			background-color: green;
-		}
+		\}
 		.contrib-danger {
 			background-color: red;
-		}
+		\}
 		.contrib-old {
 			background-color: orange;
-		}
+		\}
 	</style>
 }
 
 #set("body-contents") {
 	<div class="container">
-		<div id="contributors" class="row"></div>
+		<div id="contributors" class="row">
+			#for(contributor in contributors) {
+				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 contributor">
+					<div class="circle" contrib-id="#(contributor.login)" data-toggle="tooltip" data-placement="bottom"></div>
+					<div class="thumbnail">
+						<a href="#(contributor.html_url)">
+							<img src="#(contributor.avatar_url)" alt="">
+						</a>
+						<div class="caption">
+							<h3>#(contributor.login)
+								<br>
+								<small>Contributor</small>
+							</h3>
+							<p>
+								<a href="#(contributor.html_url)"><i class="fab fa-github"></i></a>
+								<a href="https://github.com/Podshot/MCEdit-Unified/commits?author=#(contributor.login)"><i class="fa fa-code"></i></a>
+								<!-- <a href="http://twitter.com/' + contributorDB[contributor.login].twitter + '"><i class="fab fa-twitter"></i></a>
+								<a href="http://youtube.com/' + contributorDB[contributor.login].youtube + '"><i class="fab fa-youtube"></i></a>
+								<a href="http://reddit.com/u/' + contributorDB[contributor.login].reddit + '"><i class="fab fa-reddit"></i></a>
+								<a href="http://facebook.com/' + contributorDB[contributor.login].facebook + '"><i class="fab fa-facebook"></i></a> -->
+							</p>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
 	</div>
 }
 #set("nav_page") {contributors}
