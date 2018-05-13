@@ -33,7 +33,7 @@ public func routes(_ router: Router) throws {
                 }.flatten(on: req)
             }.flatMap(to: View.self) { releases in
                 return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
-                    return try authenticated(on: req).flatMap(to: View.self) { authed in
+                    return try isAdminAuthed(on: req).flatMap(to: View.self) { authed in
                         let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
                         return try req.view().render("index", context)
                     }
@@ -55,7 +55,7 @@ public func routes(_ router: Router) throws {
     }
     
     func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
-        return try authenticated(on: req).flatMap(to: Response.self) { authed in
+        return try isAdminAuthed(on: req).flatMap(to: Response.self) { authed in
             guard authed else {
                 throw Abort(.forbidden)
             }
@@ -88,11 +88,9 @@ public func routes(_ router: Router) throws {
     
     router.get("contributors") { req -> Future<View> in
         struct ContributorContext: Encodable {
-            var contributors: [GithubContributor]
+            var contributors: [Contributor]
         }
         
-        let client = try req.make(Client.self)
-        let authedUser = try currentUser(on: req)
         let contributors = try getContributors(on: req)
         let totalContributions = contributors.map { contributors in
             return contributors.reduce(0, { (counter, contributor) -> Int in
@@ -187,7 +185,7 @@ func currentUser(on req: Request) throws -> Future<GithubUser?> {
     }
 }
 
-func authenticated(on req: Request) throws -> Future<Bool> {
+func isAdminAuthed(on req: Request) throws -> Future<Bool> {
     return try currentUser(on: req).map(to: Bool.self) { user in
         if let user = user {
             let whitelisted = ["ezfe", "Podshot", "Khroki", "TrazLander"]
@@ -229,11 +227,11 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
     }
 }
 
-func getContributors(on req: Request) throws -> Future<[GithubContributor]> {
+func getContributors(on req: Request) throws -> Future<[Contributor]> {
     let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
     
     let cache = try req.make(MemoryKeyedCache.self)
-    return cache.get("contributors", as: [GithubContributor].self).flatMap({ users in
+    return cache.get("contributors", as: [GithubContributor].self).flatMap(to: [GithubContributor].self) { users in
         if let users = users {
             return Future.map(on: req) {
                 return users
@@ -248,7 +246,24 @@ func getContributors(on req: Request) throws -> Future<[GithubContributor]> {
                     }
             }
         }
-    })
+    }.flatMap(to: [Contributor].self) { ghContributors in
+        return try currentUser(on: req).flatMap(to: [Contributor].self) { authedUser in
+            return try isAdminAuthed(on: req).map(to: [Contributor].self) { isAdmin in
+                let contributors = ghContributors.map { contributor -> Contributor in
+                    //Set editable to admin status (true if admin, false if not)
+                    var editable = isAdmin
+                    //If still not editable, check the user object
+                    if let u = authedUser, !editable {
+                        editable = u.login == contributor.login
+                    }
+                    
+                    return Contributor(from: contributor, editable: editable)
+                }
+                
+                return contributors
+            }
+        }
+    }
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {

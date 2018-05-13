@@ -149,3 +149,30 @@ struct GithubContributor: GithubIdentity {
     }
 }
 
+struct Contributor: GithubIdentity {
+    var id: Int
+    var login: String
+    var avatarURL: String
+    
+    let contributions: Int
+    let htmlURL: String
+
+    let editable: Bool
+//    let metadata:
+    
+    init(from contributor: GithubContributor) {
+        self.init(from: contributor, editable: false)
+    }
+    
+    init(from contributor: GithubContributor, editable: Bool) {
+        self.id = contributor.id
+        self.login = contributor.login
+        self.avatarURL = contributor.avatarURL
+        
+        self.contributions = contributor.contributions
+        self.htmlURL = contributor.htmlURL
+        
+        self.editable = editable
+    }
+}
+
