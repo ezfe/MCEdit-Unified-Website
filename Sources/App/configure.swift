@@ -1,7 +1,7 @@
 import Vapor
 import Leaf
 import Fluent
-import FluentSQLite
+import FluentPostgreSQL
 
 /// Called before your application initializes.
 ///
@@ -34,16 +34,21 @@ public func configure(
     let directoryConfig = DirectoryConfig.detect()
     services.register(directoryConfig)
     
-    try services.register(FluentSQLiteProvider())
+    try services.register(FluentPostgreSQLProvider())
     
-    var databaseConfig = DatabasesConfig()
-    let db = try SQLiteDatabase(storage: .file(path: "\(directoryConfig.workDir)instantcoder.db"))
-    databaseConfig.add(database: db, as: .sqlite)
-    services.register(databaseConfig)
+    var dbConfig = DatabasesConfig()
+    let postgreConfig: PostgreSQLDatabaseConfig
+    if env.isRelease {
+        postgreConfig = try PostgreSQLDatabaseConfig(url: Environment.get("DATABASE_URL")!)
+    } else {
+        postgreConfig = PostgreSQLDatabaseConfig(hostname: "localhost", username: "ezekielelin", database: "mcedit")
+    }
+    let db = PostgreSQLDatabase(config: postgreConfig)
+    dbConfig.add(database: db, as: .psql)
+    services.register(dbConfig)
     
     var migrationConfig = MigrationConfig()
-    migrationConfig.add(model: ReleaseMetaData.self, database: .sqlite)
-    migrationConfig.add(model: ContributorMetaData.self, database: .sqlite)
-//    migrationConfig.add(model: Project.self, database: .sqlite)
+    migrationConfig.add(model: ReleaseMetaData.self, database: .psql)
+    migrationConfig.add(model: ContributorMetaData.self, database: .psql)
     services.register(migrationConfig)
 }

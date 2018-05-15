@@ -8,9 +8,9 @@
 import Foundation
 import Vapor
 import Fluent
-import FluentSQLite
+import FluentPostgreSQL
 
-struct ReleaseMetaData: Content, SQLiteUUIDModel, Migration {
+struct ReleaseMetaData: Content, PostgreSQLUUIDModel, Migration {
     var id: UUID?
     var releaseID: Int
     var commentURL: String?
