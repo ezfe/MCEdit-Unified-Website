@@ -43,6 +43,7 @@ public func configure(
     
     var migrationConfig = MigrationConfig()
     migrationConfig.add(model: ReleaseMetaData.self, database: .sqlite)
+    migrationConfig.add(model: ContributorMetaData.self, database: .sqlite)
 //    migrationConfig.add(model: Project.self, database: .sqlite)
     services.register(migrationConfig)
 }

@@ -13,5 +13,11 @@ import FluentSQLite
 struct ContributorMetaData: Content, SQLiteUUIDModel, Migration {
     var id: UUID?
     var contributorId: Int
-    var commentURL: String?
+    var roleDescription: String?
+    
+    init(id: UUID?, contributorId: Int, roleDescription: String?) {
+        self.id = id
+        self.contributorId = contributorId
+        self.roleDescription = roleDescription
+    }
 }

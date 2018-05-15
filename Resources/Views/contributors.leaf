@@ -39,10 +39,10 @@
 							<h3>#(contributor.login)
 								<br>
 								<small>
-									<span class="description-field">Contributor</span>
+									<span class="description-field">#(contributor.metadata.roleDescription)</span>
 									#if(contributor.editable) {
-										<form>
-											<input type="text" class="description-edit-field" value="Contributor" style="display: none; width: 100%">
+										<form action="/setContributorRoleDescription/#(contributor.metadata.id)" method="post">
+											<input type="text" class="description-edit-field" value="#(contributor.metadata.roleDescription)" style="display: none; width: 100%" name="description">
 											<br />
 											<button class="btn btn-xs btn-success description-edit-save" style="display: none;">Save</button>
 										</form>

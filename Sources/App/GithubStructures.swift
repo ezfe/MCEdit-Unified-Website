@@ -158,7 +158,7 @@ struct Contributor: GithubIdentity {
     let htmlURL: String
 
     let editable: Bool
-//    let metadata:
+    var metadata: ContributorMetaData?
     
     init(from contributor: GithubContributor) {
         self.init(from: contributor, editable: false)

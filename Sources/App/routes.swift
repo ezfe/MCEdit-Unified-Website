@@ -41,6 +41,38 @@ public func routes(_ router: Router) throws {
         }
     }
     
+    router.post("setContributorRoleDescription", UUID.parameter) { req -> Future<Response> in
+        let metadataID = try req.parameters.next(UUID.self)
+        let text: String = try req.content.syncGet(at: "description")
+        
+        return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.id == metadataID).first().flatMap(to: Response.self) { contributorMetadata in
+            
+            guard var contributorMetadata = contributorMetadata else {
+                throw Abort(.notFound)
+            }
+            
+            return try isAdminAuthed(on: req).flatMap(to: Bool.self) { isAdmin in
+                if isAdmin {
+                    return Future.map(on: req) { return true }
+                } else {
+                    return try currentUser(on: req).map(to: Bool.self) { user in
+                        return user?.id == contributorMetadata.contributorId
+                    }
+                }
+            }.map(to: Response.self) { editAllowed in
+                guard editAllowed else {
+                    throw Abort(.forbidden)
+                }
+                
+                print("Found metadata object")
+                print("assigning role description \(text)")
+                contributorMetadata.roleDescription = text
+                _ = contributorMetadata.save(on: req)
+                return req.redirect(to: "/contributors")
+            }
+        }
+    }
+    
     router.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
         let metadataID = try req.parameters.next(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
@@ -92,15 +124,32 @@ public func routes(_ router: Router) throws {
         }
         
         let contributors = try getContributors(on: req)
-        let totalContributions = contributors.map { contributors in
-            return contributors.reduce(0, { (counter, contributor) -> Int in
-                return counter + contributor.contributions
-            })
-        }
-
-        return contributors.flatMap(to: View.self) { contributors in
-            let ctx = ContributorContext(contributors: contributors)
-            return try req.view().render("contributors", ctx)
+        //        let totalContributions = contributors.map { contributors in
+        //            return contributors.reduce(0, { (counter, contributor) -> Int in
+        //                return counter + contributor.contributions
+        //            })
+        //        }
+        
+        //
+        return contributors.flatMap(to: [Contributor].self) { contributors in
+            return try contributors.map { contributor in
+                return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.contributorId == contributor.id).first().flatMap(to: ContributorMetaData.self) { cmd in
+                    if let cmd = cmd {
+                        return Future.map(on: req) {
+                            return cmd
+                        }
+                    } else {
+                        return ContributorMetaData(id: nil, contributorId: contributor.id, roleDescription: "Contributor").create(on: req)
+                    }
+                    }.map(to: Contributor.self) { cmd in
+                        var contributorPlus = contributor
+                        contributorPlus.metadata = cmd
+                        return contributorPlus
+                }
+                }.flatten(on: req)
+            }.flatMap(to: View.self) { contributors in
+                let ctx = ContributorContext(contributors: contributors)
+                return try req.view().render("contributors", ctx)
         }
     }
     
@@ -246,23 +295,23 @@ func getContributors(on req: Request) throws -> Future<[Contributor]> {
                     }
             }
         }
-    }.flatMap(to: [Contributor].self) { ghContributors in
-        return try currentUser(on: req).flatMap(to: [Contributor].self) { authedUser in
-            return try isAdminAuthed(on: req).map(to: [Contributor].self) { isAdmin in
-                let contributors = ghContributors.map { contributor -> Contributor in
-                    //Set editable to admin status (true if admin, false if not)
-                    var editable = isAdmin
-                    //If still not editable, check the user object
-                    if let u = authedUser, !editable {
-                        editable = u.login == contributor.login
+        }.flatMap(to: [Contributor].self) { ghContributors in
+            return try currentUser(on: req).flatMap(to: [Contributor].self) { authedUser in
+                return try isAdminAuthed(on: req).map(to: [Contributor].self) { isAdmin in
+                    let contributors = ghContributors.map { contributor -> Contributor in
+                        //Set editable to admin status (true if admin, false if not)
+                        var editable = isAdmin
+                        //If still not editable, check the user object
+                        if let u = authedUser, !editable {
+                            editable = u.login == contributor.login
+                        }
+                        
+                        return Contributor(from: contributor, editable: editable)
                     }
                     
-                    return Contributor(from: contributor, editable: editable)
+                    return contributors
                 }
-                
-                return contributors
             }
-        }
     }
 }
 
