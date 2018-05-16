@@ -1,31 +1,31 @@
 function startEditing(username) {
-	const descriptionField = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-field`;
-	const descriptionEditField = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > form > .description-edit-field`;
+	const descriptionField = `.description-field[contrib-id=${username}]`;
+	const descriptionEditField = `.description-edit-field[contrib-id=${username}]`;
 
-	const descriptionEditStart = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-edit-start`;
-	const descriptionEditEnd = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-edit-end`;
-	const descriptionEditSave = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > form > .description-edit-save`;
+	const descriptionEditStart = `.description-edit-start[contrib-id=${username}]`;
+	const descriptionEditEnd = `.description-edit-end[contrib-id=${username}]`;
+	const descriptionEditSave = `.description-edit-save[contrib-id=${username}]`;
 
-	document.querySelector(descriptionField).style.display = 'none';
-	document.querySelector(descriptionEditField).style.display = 'initial';
+	$(descriptionField).hide();
+	$(descriptionEditField).show();
 
-	document.querySelector(descriptionEditStart).style.display = 'none';
-	document.querySelector(descriptionEditEnd).style.display = 'initial';
-	document.querySelector(descriptionEditSave).style.display = 'initial';
+	$(descriptionEditStart).hide();
+	$(descriptionEditEnd).show();
+	$(descriptionEditSave).show();
 }
 
 function cancelEditing(username) {
-	const descriptionField = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-field`;
-	const descriptionEditField = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > form > .description-edit-field`;
+	const descriptionField = `.description-field[contrib-id=${username}]`;
+	const descriptionEditField = `.description-edit-field[contrib-id=${username}]`;
 
-	const descriptionEditStart = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-edit-start`;
-	const descriptionEditEnd = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > .description-edit-end`;
-	const descriptionEditSave = `.contributor[contrib-id=${username}] > .thumbnail > .caption > h3 > small > form > .description-edit-save`;
+	const descriptionEditStart = `.description-edit-start[contrib-id=${username}]`;
+	const descriptionEditEnd = `.description-edit-end[contrib-id=${username}]`;
+	const descriptionEditSave = `.description-edit-save[contrib-id=${username}]`;
 
-	document.querySelector(descriptionField).style.display = 'initial';
-	document.querySelector(descriptionEditField).style.display = 'none';
+	$(descriptionField).show();
+	$(descriptionEditField).hide();
 
-	document.querySelector(descriptionEditStart).style.display = 'initial';
-	document.querySelector(descriptionEditEnd).style.display = 'none';
-	document.querySelector(descriptionEditSave).style.display = 'none';
+	$(descriptionEditStart).show();
+	$(descriptionEditEnd).hide();
+	$(descriptionEditSave).hide();
 }
