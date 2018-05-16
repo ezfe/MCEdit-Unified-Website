@@ -26,9 +26,10 @@ span[id*="-downloads"] .dl {
 }
 
 /* FROM TEXT.CSS */
-.footer {
+#footer {
 	text-align: center;
 	font-size: 12px;
+	margin-bottom: 1rem;
 }
 /* Outdated browser warning look */
 .update {
