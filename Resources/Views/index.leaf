@@ -137,7 +137,7 @@
 							}
 							<div class="row">
 								<div class="col">
-									Released #date(release.publishedAt, "MMM d, yyyy")
+									#date(release.publishedAt, "MMM d, yyyy")
 								</div>
 							</div>
 
@@ -145,7 +145,7 @@
 								<div class="row">
 									<div class="col">
 										<form action="/setCommentURL/#(release.metadata.id)" method="post">
-											<input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url"/>
+											<input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url" value="#(release.metadata.commentURL)"/>
 											<button class="btn btn-default btn-block" type="submit">#if(release.metadata.commentURL){Update}else{Set}&nbsp;URL</button>
 										</form>
 									</div>
