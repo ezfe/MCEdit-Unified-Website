@@ -41,9 +41,12 @@ public func routes(_ router: Router) throws {
         }
     }
     
-    router.post("setContributorRoleDescription", UUID.parameter) { req -> Future<Response> in
+    router.post("updateContributorMetadata", UUID.parameter) { req -> Future<Response> in
         let metadataID = try req.parameters.next(UUID.self)
-        let text: String = try req.content.syncGet(at: "description")
+        let roleDescription: String = try req.content.syncGet(at: "description")
+        let twitterUsername: String = try req.content.syncGet(at: "twitterUsername")
+        let redditUsername: String = try req.content.syncGet(at: "redditUsername")
+        let youtubeUsername: String = try req.content.syncGet(at: "youtubeUsername")
         
         return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.id == metadataID).first().flatMap(to: Response.self) { contributorMetadata in
             
@@ -65,8 +68,11 @@ public func routes(_ router: Router) throws {
                 }
                 
                 print("Found metadata object")
-                print("assigning role description \(text)")
-                contributorMetadata.roleDescription = text
+                contributorMetadata.roleDescription = roleDescription
+                contributorMetadata.youtubeUsername = youtubeUsername
+                contributorMetadata.twitterUsername = twitterUsername
+                contributorMetadata.redditUsername = redditUsername
+                
                 _ = contributorMetadata.save(on: req)
                 return req.redirect(to: "/contributors")
             }
@@ -139,7 +145,7 @@ public func routes(_ router: Router) throws {
                             return cmd
                         }
                     } else {
-                        return ContributorMetaData(id: nil, contributorId: contributor.id, roleDescription: "Contributor").create(on: req)
+                        return ContributorMetaData(id: nil, contributorId: contributor.id).create(on: req)
                     }
                     }.map(to: Contributor.self) { cmd in
                         var contributorPlus = contributor

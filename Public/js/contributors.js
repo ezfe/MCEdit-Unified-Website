@@ -1,31 +1,80 @@
+function startEditButton(username) {
+	return $(`.description-edit-start[contrib-id=${username}]`);
+}
+
+function saveEditButton(username) {
+	return $(`.description-edit-save[contrib-id=${username}]`);
+}
+
+function cancelEditButton(username) {
+	return $(`.description-edit-end[contrib-id=${username}]`);
+}
+
+function descriptionField(username) {
+	return $(`.description-field[contrib-id=${username}]`)
+}
+
+function descriptionEdit(username) {
+	return $(`.description-edit[contrib-id=${username}]`)
+}
+
+function twitterButton(username) {
+	return $(`.twitter-button[contrib-id=${username}]`)
+}
+
+function twitterEdit(username) {
+	return $(`.twitter-edit[contrib-id=${username}]`)
+}
+
+function youtubeButton(username) {
+	return $(`.youtube-button[contrib-id=${username}]`)
+}
+
+function youtubeEdit(username) {
+	return $(`.youtube-edit[contrib-id=${username}]`)
+}
+
+function redditButton(username) {
+	return $(`.reddit-button[contrib-id=${username}]`)
+}
+
+function redditEdit(username) {
+	return $(`.reddit-edit[contrib-id=${username}]`)
+}
+
+
 function startEditing(username) {
-	const descriptionField = `.description-field[contrib-id=${username}]`;
-	const descriptionEditField = `.description-edit-field[contrib-id=${username}]`;
+	descriptionField(username).hide();
+	descriptionEdit(username).show();
 
-	const descriptionEditStart = `.description-edit-start[contrib-id=${username}]`;
-	const descriptionEditEnd = `.description-edit-end[contrib-id=${username}]`;
-	const descriptionEditSave = `.description-edit-save[contrib-id=${username}]`;
+	startEditButton(username).hide();
+	cancelEditButton(username).show();
+	saveEditButton(username).show();
 
-	$(descriptionField).hide();
-	$(descriptionEditField).show();
+	twitterButton(username).hide();
+	twitterEdit(username).show();
 
-	$(descriptionEditStart).hide();
-	$(descriptionEditEnd).show();
-	$(descriptionEditSave).show();
+	youtubeButton(username).hide();
+	youtubeEdit(username).show();
+
+	redditButton(username).hide();
+	redditEdit(username).show();
 }
 
 function cancelEditing(username) {
-	const descriptionField = `.description-field[contrib-id=${username}]`;
-	const descriptionEditField = `.description-edit-field[contrib-id=${username}]`;
+	descriptionField(username).show();
+	descriptionEdit(username).hide();
 
-	const descriptionEditStart = `.description-edit-start[contrib-id=${username}]`;
-	const descriptionEditEnd = `.description-edit-end[contrib-id=${username}]`;
-	const descriptionEditSave = `.description-edit-save[contrib-id=${username}]`;
+	startEditButton(username).show();
+	cancelEditButton(username).hide();
+	saveEditButton(username).hide();
 
-	$(descriptionField).show();
-	$(descriptionEditField).hide();
+	twitterButton(username).show();
+	twitterEdit(username).hide();
 
-	$(descriptionEditStart).show();
-	$(descriptionEditEnd).hide();
-	$(descriptionEditSave).hide();
+	youtubeButton(username).show();
+	youtubeEdit(username).hide();
+
+	redditButton(username).show();
+	redditEdit(username).hide();
 }

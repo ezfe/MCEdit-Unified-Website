@@ -50,5 +50,6 @@ public func configure(
     var migrationConfig = MigrationConfig()
     migrationConfig.add(model: ReleaseMetaData.self, database: .psql)
     migrationConfig.add(model: ContributorMetaData.self, database: .psql)
+    migrationConfig.add(migration: ContributorMigration1.self, database: .psql)
     services.register(migrationConfig)
 }

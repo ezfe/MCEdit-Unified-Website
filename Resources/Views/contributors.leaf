@@ -34,7 +34,7 @@
 						<img class="card-img-top" src="#(contributor.avatarURL)" alt="#(contributor.login)'s Avatar">
 						<div class="card-body">
 							<h5 class="card-title">#(contributor.login)</h5>
-							<form action="/setContributorRoleDescription/#(contributor.metadata.id)" method="post">
+							<form action="/updateContributorMetadata/#(contributor.metadata.id)" method="post">
 								<p class="card-text">
 									<span
 										contrib-id="#(contributor.login)"
@@ -44,11 +44,128 @@
 									<input
 										contrib-id="#(contributor.login)"
 										type="text"
-										class="description-edit-field form-control"
+										class="description-edit form-control"
 										value="#(contributor.metadata.roleDescription)"
-										style="display: none; width: 100%"
+										style="display: none;"
 										name="description">
 								</p>
+
+								<!-- Twitter -->
+								<div
+									class="row twitter-edit"
+									contrib-id="#(contributor.login)"
+									style="display: none;">
+									<div class="col">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" id="basic-addon1"><i class="fab fa-twitter"></i></span>
+											</div>
+											<input
+												type="text"
+												class="form-control"
+												placeholder="Twitter"
+												aria-label="Twitter"
+												aria-describedby="basic-addon1"
+												value="#(contributor.metadata.twitterUsername)"
+												name="twitterUsername">
+										</div>
+									</div>
+								</div>
+								#if(contributor.metadata.twitterUsername) {
+									<div
+										class="row twitter-button"
+										contrib-id="#(contributor.login)">
+										<div class="col">
+											<a href="https://twitter.com/#(contributor.metadata.twitterUsername)" class="btn btn-primary btn-block">
+												<i class="fab fa-twitter"></i> Twitter
+											</a>
+										</div>
+									</div>
+								}
+
+								<!-- Youtube -->
+								<div
+									class="row youtube-edit"
+									contrib-id="#(contributor.login)"
+									style="display: none;">
+									<div class="col">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" id="basic-addon1"><i class="fab fa-youtube"></i></span>
+											</div>
+											<input
+												type="text"
+												class="form-control"
+												placeholder="Youtube"
+												aria-label="Youtube"
+												aria-describedby="basic-addon1"
+												value="#(contributor.metadata.youtubeUsername)"
+												name="youtubeUsername">
+										</div>
+									</div>
+								</div>
+								#if(contributor.metadata.youtubeUsername) {
+									<div
+										class="row youtube-button"
+										contrib-id="#(contributor.login)">
+										<div class="col">
+											<a href="https://youtube.com/#(contributor.metadata.youtubeUsername)" class="btn btn-primary btn-block">
+												<i class="fab fa-youtube"></i> Youtube
+											</a>
+										</div>
+									</div>
+								}
+
+								<!-- Reddit -->
+								<div
+									class="row reddit-edit"
+									contrib-id="#(contributor.login)"
+									style="display: none;">
+									<div class="col">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" id="basic-addon1"><i class="fab fa-reddit"></i></span>
+											</div>
+											<input
+												type="text"
+												class="form-control"
+												placeholder="Reddit"
+												aria-label="Reddit"
+												aria-describedby="basic-addon1"
+												value="#(contributor.metadata.redditUsername)"
+												name="redditUsername">
+										</div>
+									</div>
+								</div>
+								#if(contributor.metadata.redditUsername) {
+									<div
+										class="row reddit-button"
+										contrib-id="#(contributor.login)">
+										<div class="col">
+											<a href="https://old.reddit.com/user/#(contributor.metadata.redditUsername)" class="btn btn-primary btn-block">
+												<i class="fab fa-reddit"></i> Reddit
+											</a>
+										</div>
+									</div>
+								}
+
+								<!-- Github and Contributions -->
+								<div class="row">
+									<div class="col">
+										<a href="#(contributor.htmlURL)" class="btn btn-primary btn-block">
+											<i class="fab fa-github"></i> Github
+										</a>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col">
+										<a href="https://github.com/Podshot/MCEdit-Unified/commits?author=#(contributor.login)" class="btn btn-primary btn-block">
+											<i class="fa fa-code"></i> Contributions
+										</a>
+									</div>
+								</div>
+
+								<!-- Edit Start / Stop Buttons -->
 								#if(contributor.editable) {
 									<div
 										contrib-id="#(contributor.login)"
@@ -89,55 +206,6 @@
 									</div>
 								}
 							</form>
-							<div class="row">
-								<div class="col">
-									<a href="#(contributor.htmlURL)" class="btn btn-primary btn-block">
-										<i class="fab fa-github"></i> Github
-									</a>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<a href="https://github.com/Podshot/MCEdit-Unified/commits?author=#(contributor.login)" class="btn btn-primary btn-block">
-										<i class="fa fa-code"></i> Contributions
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			}
-			#if(false) {
-				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 contributor">
-					<div class="circle" data-toggle="tooltip" data-placement="bottom"></div>
-					<div class="thumbnail">
-						<a href="#(contributor.htmlURL)">
-							<img src="#(contributor.avatarURL)" alt="">
-						</a>
-						<div class="caption">
-							<h3>#(contributor.login)
-								<br>
-								<small>
-									<span class="description-field">#(contributor.metadata.roleDescription)</span>
-									#if(contributor.editable) {
-										<form action="/setContributorRoleDescription/#(contributor.metadata.id)" method="post">
-											<input type="text" class="description-edit-field" value="#(contributor.metadata.roleDescription)" style="display: none; width: 100%" name="description">
-											<br />
-											<button class="btn btn-xs btn-success description-edit-save" style="display: none;">Save</button>
-										</form>
-										<button onclick="startEditing('#(contributor.login)')" class="btn btn-xs btn-primary description-edit-start">Edit</button>
-										<button onclick="cancelEditing('#(contributor.login)')" class="btn btn-xs btn-danger description-edit-end" style="display: none;">Cancel</button>
-									}
-								</small>
-							</h3>
-							<p>
-								<a href="#(contributor.htmlURL)"><i class="fab fa-github"></i></a>
-								<a href="https://github.com/Podshot/MCEdit-Unified/commits?author=#(contributor.login)"><i class="fa fa-code"></i></a>
-								<!-- <a href="http://twitter.com/' + contributorDB[contributor.login].twitter + '"><i class="fab fa-twitter"></i></a>
-								<a href="http://youtube.com/' + contributorDB[contributor.login].youtube + '"><i class="fab fa-youtube"></i></a>
-								<a href="http://reddit.com/u/' + contributorDB[contributor.login].reddit + '"><i class="fab fa-reddit"></i></a>
-								<a href="http://facebook.com/' + contributorDB[contributor.login].facebook + '"><i class="fab fa-facebook"></i></a> -->
-							</p>
 						</div>
 					</div>
 				</div>
