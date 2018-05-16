@@ -13,11 +13,6 @@
 	<link rel="stylesheet" href="css/stylesheet.css">
 	<link rel="shortcut icon" href="favicon.ico">
 
-	<script defer src="js/fa-brands.min.js"></script>
-	<script defer src="js/fa-regular.min.js"></script>
-	<script defer src="js/fa-solid.min.js"></script>
-	<script src="js/fontawesome.min.js"></script>
-
 	<meta name="viewport" content="width=device-width, initiass ol-scale=1">
 
 	<!-- Google Analytics -->
@@ -60,6 +55,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+	<!-- Font Awesome -->
+	<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/all.js" integrity="sha384-xymdQtn1n3lH2wcu0qhcdaOpQwyoarkgLVxC/wZ5q7h9gHtxICrpcaSUfygqZGOe" crossorigin="anonymous"></script>
 
     <!-- Markdown -->
 	<script src="js/marked.js"></script>
