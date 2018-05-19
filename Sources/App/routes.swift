@@ -44,9 +44,9 @@ public func routes(_ router: Router) throws {
     router.post("updateContributorMetadata", UUID.parameter) { req -> Future<Response> in
         let metadataID = try req.parameters.next(UUID.self)
         let roleDescription: String = try req.content.syncGet(at: "description")
-        let twitterUsername: String = try req.content.syncGet(at: "twitterUsername")
-        let redditUsername: String = try req.content.syncGet(at: "redditUsername")
-        let youtubeUsername: String = try req.content.syncGet(at: "youtubeUsername")
+        var twitterUsername: String? = try req.content.syncGet(at: "twitterUsername")
+        var redditUsername: String? = try req.content.syncGet(at: "redditUsername")
+        var youtubeUsername: String? = try req.content.syncGet(at: "youtubeUsername")
         
         return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.id == metadataID).first().flatMap(to: Response.self) { contributorMetadata in
             
@@ -65,6 +65,16 @@ public func routes(_ router: Router) throws {
             }.map(to: Response.self) { editAllowed in
                 guard editAllowed else {
                     throw Abort(.forbidden)
+                }
+                
+                if youtubeUsername?.count == 0 {
+                    youtubeUsername = nil
+                }
+                if twitterUsername?.count == 0 {
+                    twitterUsername = nil
+                }
+                if redditUsername?.count == 0 {
+                    redditUsername = nil
                 }
                 
                 print("Found metadata object")
