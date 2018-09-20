@@ -32,10 +32,10 @@ struct ContributorMigration1: Migration {
 
     static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
         return Database.update(ContributorMetaData.self, on: connection) { builder in
-            try builder.field(for: \ContributorMetaData.twitterUsername)
-            try builder.field(for: \ContributorMetaData.youtubeUsername)
-            try builder.field(for: \ContributorMetaData.redditUsername)
-            builder.addField(type: PostgreSQLColumn(type: .bool, default: "false"), name: "webcheck")
+            builder.field(for: \ContributorMetaData.twitterUsername)
+            builder.field(for: \ContributorMetaData.youtubeUsername)
+            builder.field(for: \ContributorMetaData.redditUsername)
+            builder.field(for: \ContributorMetaData.webcheck, type: PostgreSQLDataType.bool)
         }
     }
 

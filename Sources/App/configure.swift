@@ -39,7 +39,7 @@ public func configure(
     var dbConfig = DatabasesConfig()
     let postgreConfig: PostgreSQLDatabaseConfig
     if env.isRelease {
-        postgreConfig = try PostgreSQLDatabaseConfig(url: Environment.get("DATABASE_URL")!)
+        postgreConfig = try PostgreSQLDatabaseConfig(url: Environment.get("DATABASE_URL")!)!
     } else {
         postgreConfig = PostgreSQLDatabaseConfig(hostname: "localhost", username: "ezekielelin", database: "mcedit")
     }
