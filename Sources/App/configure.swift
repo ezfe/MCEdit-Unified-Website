@@ -39,7 +39,7 @@ public func configure(
     var dbConfig = DatabasesConfig()
     let postgreConfig: PostgreSQLDatabaseConfig
     if env.isRelease {
-        postgreConfig = try PostgreSQLDatabaseConfig(url: Environment.get("DATABASE_URL")!)!
+        postgreConfig = PostgreSQLDatabaseConfig(url: Environment.get("DATABASE_URL")!)!
     } else {
         postgreConfig = PostgreSQLDatabaseConfig(hostname: "localhost", username: "ezekielelin", database: "mcedit")
     }
@@ -50,6 +50,5 @@ public func configure(
     var migrationConfig = MigrationConfig()
     migrationConfig.add(model: ReleaseMetaData.self, database: .psql)
     migrationConfig.add(model: ContributorMetaData.self, database: .psql)
-    migrationConfig.add(migration: ContributorMigration1.self, database: .psql)
     services.register(migrationConfig)
 }
