@@ -51,4 +51,6 @@ public func configure(
     migrationConfig.add(model: ReleaseMetaData.self, database: .psql)
     migrationConfig.add(model: ContributorMetaData.self, database: .psql)
     services.register(migrationConfig)
+    
+    services.register(DatabaseConnectionPoolConfig(maxConnections: 16))
 }
