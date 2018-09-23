@@ -16,8 +16,8 @@ public func routes(_ router: Router) throws {
         }
         
         return try getReleases(on: req).flatMap(to: [Release].self) { releases in
-            return try releases.map { release in
-                return try ReleaseMetaData.query(on: req).filter(\ReleaseMetaData.releaseID == release.id).first().flatMap(to: ReleaseMetaData.self) { rmd in
+            return releases.map { release in
+                return ReleaseMetaData.query(on: req).filter(\ReleaseMetaData.releaseID == release.id).first().flatMap(to: ReleaseMetaData.self) { rmd in
                     if let rmd = rmd {
                         return Future.map(on: req) {
                             return rmd
@@ -48,7 +48,17 @@ public func routes(_ router: Router) throws {
         var redditUsername: String? = try req.content.syncGet(at: "redditUsername")
         var youtubeUsername: String? = try req.content.syncGet(at: "youtubeUsername")
         
-        return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.id == metadataID).first().flatMap(to: Response.self) { contributorMetadata in
+        if twitterUsername?.isEmpty ?? true {
+            twitterUsername = nil
+        }
+        if redditUsername?.isEmpty ?? true {
+            redditUsername = nil
+        }
+        if youtubeUsername?.isEmpty ?? true {
+            youtubeUsername = nil
+        }
+        
+        return ContributorMetaData.query(on: req).filter(\ContributorMetaData.id == metadataID).first().flatMap(to: Response.self) { contributorMetadata in
             
             guard var contributorMetadata = contributorMetadata else {
                 throw Abort(.notFound)
@@ -65,16 +75,6 @@ public func routes(_ router: Router) throws {
             }.map(to: Response.self) { editAllowed in
                 guard editAllowed else {
                     throw Abort(.forbidden)
-                }
-                
-                if youtubeUsername?.count == 0 {
-                    youtubeUsername = nil
-                }
-                if twitterUsername?.count == 0 {
-                    twitterUsername = nil
-                }
-                if redditUsername?.count == 0 {
-                    redditUsername = nil
                 }
                 
                 print("Found metadata object")
@@ -108,7 +108,7 @@ public func routes(_ router: Router) throws {
                 throw Abort(.forbidden)
             }
             
-            return try ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
+            return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
                 if var releaseMetadata = releaseMetadata {
                     print("Found metadata object")
                     print("assigning url \(String(describing: url))")
@@ -148,8 +148,8 @@ public func routes(_ router: Router) throws {
         
         //
         return contributors.flatMap(to: [Contributor].self) { contributors in
-            return try contributors.map { contributor in
-                return try ContributorMetaData.query(on: req).filter(\ContributorMetaData.contributorId == contributor.id).first().flatMap(to: ContributorMetaData.self) { cmd in
+            return contributors.map { contributor in
+                return ContributorMetaData.query(on: req).filter(\ContributorMetaData.contributorId == contributor.id).first().flatMap(to: ContributorMetaData.self) { cmd in
                     if let cmd = cmd {
                         return Future.map(on: req) {
                             return cmd
@@ -174,7 +174,9 @@ public func routes(_ router: Router) throws {
         let stateString = "12345"
         session["github_oauth_state"] = stateString
         
-        let clientID = URLQueryItem(name: "client_id", value: "4d162dd6f6e9872bbee4")
+        let clientIdValue = getClientID(env: req.environment)
+        
+        let clientID = URLQueryItem(name: "client_id", value: clientIdValue)
         let state = URLQueryItem(name: "state", value: stateString) //MARK: no
         let allowSignups = URLQueryItem(name: "allow_signup", value: "false")
         
@@ -207,7 +209,7 @@ public func routes(_ router: Router) throws {
             let access_token: String
         }
         
-        let requestContent = GithubAccessTokenRequest(client_id: "4d162dd6f6e9872bbee4", client_secret: "0aceae20334be499b6edc3f395da090d5993b9f6", code: code, state: state)
+        let requestContent = GithubAccessTokenRequest(client_id: getClientID(env: req.environment), client_secret: getClientSecret(env: req.environment), code: code, state: state)
         
         var headers = HTTPHeaders()
         headers.add(name: "Accepts", value: "application/json")
@@ -355,4 +357,12 @@ func getReleases(on req: Request) throws -> Future<[Release]> {
             }
         }
     }
+}
+
+func getClientID(env: Environment) -> String {
+    return env.isRelease ? "4d162dd6f6e9872bbee4" : "f5502eaf4ade48cd63f4"
+}
+
+func getClientSecret(env: Environment) -> String {
+    return env.isRelease ? "0aceae20334be499b6edc3f395da090d5993b9f6" : "de497386b5fb737fc51ef57c8e4395d6802f58f3"
 }
