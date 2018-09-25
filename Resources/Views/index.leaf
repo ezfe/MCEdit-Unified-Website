@@ -67,7 +67,7 @@
 						<span id="Lin-downloads">
 							<a class="dl btn btn-primary" href="#(latestRelease.linux.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a>
 							<br><br>
-							<a class="dl btn btn-primary" href="http://github.com/Podshot/MCEdit-Unified/releases"><i class="fa fa-code" ></i> Run From Source</a><br><br>
+							<a class="dl btn btn-primary" href="https://github.com/Podshot/MCEdit-Unified/releases"><i class="fa fa-code" ></i> Run From Source</a><br><br>
 						</span>
 					</div>
 				</div>
