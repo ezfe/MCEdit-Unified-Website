@@ -119,6 +119,15 @@
         }
       },
       {
+        "package": "PwnedPasswords",
+        "repositoryURL": "https://github.com/ezfe/pwnedpasswords-provider.git",
+        "state": {
+          "branch": null,
+          "revision": "613199852f921698077de51b72f803cf537fa42e",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "Routing",
         "repositoryURL": "https://github.com/vapor/routing.git",
         "state": {

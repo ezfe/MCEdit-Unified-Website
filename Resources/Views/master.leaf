@@ -44,7 +44,7 @@
 			&copy; 2010-2014 David Rio Vierra (<a href="https://twitter.com/codewarrior0">Codewarrior0</a>).
 			&copy; 2014-2015 <a href="/contributors">Khroki and all of the contributers</a>.
 			All Rights Reserved to their respective ownership.
-			<a href="/auth/new">Login</a>
+			<a href="/user-panel"><i class="fas fa-cog"></i> User Panel</a>
 		</div>
 	</div>
 

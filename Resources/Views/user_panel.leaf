@@ -1,0 +1,29 @@
+#set("title") { MCEdit Unified – Register }
+
+#set("header-contents") {}
+
+#set("body-contents") {
+
+	Your email is #(user.email)
+    <br>
+
+    #if(user.role == "manager") {
+        Your account is marked with special permissions (#(user.role))!
+        <br>
+    }
+
+    <hr>
+    <h2>Github Connection</h2>
+    #if(githubUsername) {
+        Connected as #(githubUsername) – <a href="/user-panel/remove-github"><i class="fa fa-times"></i> Disconnect</a>
+    } else {
+        <a href="/user-panel/connect-github" class="btn btn-primary"><i class="fab fa-github"></i> Connect to Github</a>
+    }
+
+    <br>
+    <hr>
+
+    <a href="/auth/logout">Logout</a>
+}
+#set("nav_page") {register}
+#embed("master")

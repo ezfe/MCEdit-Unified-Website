@@ -8,7 +8,12 @@ import Fluent
 /// [Learn More →](https://docs.vapor.codes/3.0/getting-started/structure/#routesswift)
 public func routes(_ router: Router) throws {
     
-    router.get { req -> Future<View> in
+    let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
+    let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck())
+    
+    authSessionRoutes.get { req -> Future<View> in
+        let user = try req.authenticated(User.self)
+        
         struct Context: Codable {
             let releases: [Release]
             let latestRelease: Release
@@ -25,57 +30,59 @@ public func routes(_ router: Router) throws {
                     } else {
                         return ReleaseMetaData(id: nil, releaseID: release.id, commentURL: nil).create(on: req)
                     }
-                    }.map(to: Release.self) { rmd in
-                        var releasePlus = release
-                        releasePlus.metadata = rmd
-                        return releasePlus
+                }.map(to: Release.self) { rmd in
+                    var releasePlus = release
+                    releasePlus.metadata = rmd
+                    return releasePlus
                 }
-                }.flatten(on: req)
-            }.flatMap(to: View.self) { releases in
-                return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
-                    return try isAdminAuthed(on: req).flatMap(to: View.self) { authed in
-                        let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
-                        return try req.view().render("index", context)
-                    }
-                }
+            }.flatten(on: req)
+        }.flatMap(to: View.self) { releases in
+            return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
+                let authed = (user?.role ?? .regular) >= .manager
+                
+                let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
+                return try req.view().render("index", context)
+            }
         }
     }
     
-    router.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
+    protectedRoutes.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
+        let user = try req.requireAuthenticated(User.self)
         let metadataID = try req.parameters.next(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
         
-        return try updateCommentURL(on: req, id: metadataID, with: url)
+        return try updateCommentURL(on: req, as: user, id: metadataID, with: url)
     }
     
-    router.post("removeCommentURL", UUID.parameter) { req -> Future<Response> in
+    protectedRoutes.post("removeCommentURL", UUID.parameter) { req -> Future<Response> in
+        let user = try req.requireAuthenticated(User.self)
         let metadataID = try req.parameters.next(UUID.self)
         
-        return try updateCommentURL(on: req, id: metadataID, with: nil)
+        return try updateCommentURL(on: req, as: user, id: metadataID, with: nil)
     }
     
-    func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
-        return try isAdminAuthed(on: req).flatMap(to: Response.self) { authed in
-            guard authed else {
-                throw Abort(.forbidden)
+    func updateCommentURL(on req: Request, as user: User, id: UUID, with url: String?) throws -> Future<Response> {
+        guard user.role >= .manager else {
+            throw Abort(.forbidden)
+        }
+        
+        return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
+            if var releaseMetadata = releaseMetadata {
+                print("Found metadata object")
+                print("assigning url \(String(describing: url))")
+                releaseMetadata.commentURL = url
+                _ = releaseMetadata.save(on: req)
+            } else {
+                print("No metadata object with id: \(id)")
             }
-            
-            return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
-                if var releaseMetadata = releaseMetadata {
-                    print("Found metadata object")
-                    print("assigning url \(String(describing: url))")
-                    releaseMetadata.commentURL = url
-                    _ = releaseMetadata.save(on: req)
-                } else {
-                    print("No metadata object with id: \(id)")
-                }
-                return req.redirect(to: "/")
-            }
+            return req.redirect(to: "/")
         }
     }
     
     try router.grouped("about").register(collection: AboutController())
     try router.grouped("contributors").register(collection: ContributorController())
+    try router.grouped("auth").register(collection: AuthenticationController())
+    try router.grouped("user-panel").register(collection: UserPanelController())
 
     router.get("tutorial") { req -> Future<View> in
         return try req.view().render("tutorial")
@@ -83,62 +90,6 @@ public func routes(_ router: Router) throws {
     
     router.get("requirements") { req -> Future<View> in
         return try req.view().render("requirements")
-    }
-    
-    router.get("auth", "new") { req -> Response in
-        let session = try req.session()
-        let stateString = "12345"
-        session["github_oauth_state"] = stateString
-        
-        let clientIdValue = getClientID(env: req.environment)
-        
-        let clientID = URLQueryItem(name: "client_id", value: clientIdValue)
-        let state = URLQueryItem(name: "state", value: stateString) //MARK: no
-        let allowSignups = URLQueryItem(name: "allow_signup", value: "false")
-        
-        var components = URLComponents(string: "https://github.com/login/oauth/authorize")
-        components?.queryItems = [clientID, state, allowSignups]
-        
-        return req.redirect(to: components!.url!.absoluteString)
-    }
-    
-    router.get("auth", "callback") { req -> Future<Response> in
-        
-        let code: String = try req.query.get(at: "code")
-        let state: String = try req.query.get(at: "state")
-        
-        let session = try req.session()
-        
-        if state != session["github_oauth_state"] {
-            print("Expected \(String(describing: session["github_oauth_state"])) but got \(state)")
-            throw Abort(.forbidden)
-        }
-        
-        struct GithubAccessTokenRequest: Content {
-            let client_id: String
-            let client_secret: String
-            let code: String
-            let state: String
-        }
-        
-        struct GithubAccessTokenResponse: Codable {
-            let access_token: String
-        }
-        
-        let requestContent = GithubAccessTokenRequest(client_id: getClientID(env: req.environment), client_secret: getClientSecret(env: req.environment), code: code, state: state)
-        
-        var headers = HTTPHeaders()
-        headers.add(name: "Accepts", value: "application/json")
-        
-        let client = try req.make(Client.self)
-        return client.post("https://github.com/login/oauth/access_token", headers: headers, beforeSend: { (req) in
-            try req.content.encode(requestContent)
-        }).flatMap(to: GithubAccessTokenResponse.self) { response in
-            return try response.content.decode(GithubAccessTokenResponse.self)
-            }.map(to: Response.self) { GAT in
-                session["github_oauth_access_token"] = GAT.access_token
-                return req.redirect(to: "/")
-        }
     }
     
     router.get("cache", "invalidate") { req -> String in
@@ -153,29 +104,6 @@ public func routes(_ router: Router) throws {
     
     router.get("releases", "current") { req -> Future<Release> in
         return try getLatestRelease(on: req)
-    }
-}
-
-func currentUser(on req: Request) throws -> Future<GithubUser?> {
-    let session = try req.session()
-    guard let token = session["github_oauth_access_token"] else {
-        return Future.map(on: req) { return nil }
-    }
-    
-    let client = try req.make(Client.self)
-    return client.get("https://api.github.com/user?access_token=\(token)").flatMap(to: GithubUser?.self) { response in
-        return try response.content.decode(GithubUser?.self)
-    }
-}
-
-func isAdminAuthed(on req: Request) throws -> Future<Bool> {
-    return try currentUser(on: req).map(to: Bool.self) { user in
-        if let user = user {
-            let whitelisted = ["ezfe", "Podshot", "Khroki", "TrazLander"]
-            return whitelisted.contains(user.login)
-        } else {
-            return false
-        }
     }
 }
 
@@ -210,8 +138,10 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
     }
 }
 
-func getContributors(on req: Request) throws -> Future<[Contributor]> {
+func getContributors(on req: Request, as user: User?) throws -> Future<[Contributor]> {
     let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
+    
+    let userGithub = try user?.githubDetails(on: req) ?? Future.map(on: req) { return nil}
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("contributors", as: [GithubContributor].self).flatMap(to: [GithubContributor].self) { users in
@@ -229,23 +159,16 @@ func getContributors(on req: Request) throws -> Future<[Contributor]> {
                     }
             }
         }
-        }.flatMap(to: [Contributor].self) { ghContributors in
-            return try currentUser(on: req).flatMap(to: [Contributor].self) { authedUser in
-                return try isAdminAuthed(on: req).map(to: [Contributor].self) { isAdmin in
-                    let contributors = ghContributors.map { contributor -> Contributor in
-                        //Set editable to admin status (true if admin, false if not)
-                        var editable = isAdmin
-                        //If still not editable, check the user object
-                        if let u = authedUser, !editable {
-                            editable = u.login == contributor.login
-                        }
-                        
-                        return Contributor(from: contributor, editable: editable)
-                    }
-                    
-                    return contributors
-                }
+    }.flatMap(to: [Contributor].self) { ghContributors in
+        return userGithub.map(to: [Contributor].self) { userGithub in
+            let contributors = ghContributors.map { contributor -> Contributor in
+                //Set editable to admin status (true if admin, false if not)
+                let editable = ((user?.role ?? .regular) >= .manager) || (userGithub?.id == contributor.id)
+                return Contributor(from: contributor, editable: editable)
             }
+            
+            return contributors
+        }
     }
 }
 
