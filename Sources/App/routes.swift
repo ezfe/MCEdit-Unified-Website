@@ -122,10 +122,8 @@ public func routes(_ router: Router) throws {
         }
     }
     
-    router.get("about") { req -> Future<View> in
-        return try req.view().render("about")
-    }
-    
+    try router.grouped("about").register(collection: AboutController())
+
     router.get("tutorial") { req -> Future<View> in
         return try req.view().render("tutorial")
     }
