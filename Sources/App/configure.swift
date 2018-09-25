@@ -40,7 +40,7 @@ public func configure(
     let postgreConfig: PostgreSQLDatabaseConfig
     if env.isRelease {
         let databaseUrl = Environment.get("DATABASE_URL")!
-        postgreConfig = PostgreSQLDatabaseConfig(url: databaseUrl, transport: .modernTLS)!
+        postgreConfig = PostgreSQLDatabaseConfig(url: databaseUrl, transport: .standardTLS)!
     } else {
         postgreConfig = PostgreSQLDatabaseConfig(hostname: "localhost", username: "ezekielelin", database: "mcedit")
     }
