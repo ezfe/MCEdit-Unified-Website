@@ -34,7 +34,7 @@
 						<img class="card-img-top" src="#(contributor.avatarURL)" alt="#(contributor.login)'s Avatar">
 						<div class="card-body">
 							<h5 class="card-title">#(contributor.login)</h5>
-							<form action="/updateContributorMetadata/#(contributor.metadata.id)" method="post">
+							<form action="/contributors/update/#(contributor.metadata.id)" method="post">
 								<p class="card-text">
 									<span
 										contrib-id="#(contributor.login)"

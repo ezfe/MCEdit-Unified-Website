@@ -1,8 +1,8 @@
 //
-//  ArtistPageController.swift
-//  TourServer
+//  AboutController.swift
+//  App
 //
-//  Created by Ezekiel Elin on 6/19/18.
+//  Created by Ezekiel Elin on 9/24/18.
 //
 
 import Foundation
