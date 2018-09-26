@@ -177,7 +177,7 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
@@ -200,6 +200,10 @@ func getReleases(on req: Request) throws -> Future<[Release]> {
             }
         }
     }
+}
+
+func getServerAccessToken(env: Environment) -> String {
+    return "1c9b12b56f2bc1918fee45a564dc53f765854f49"
 }
 
 func getClientID(env: Environment) -> String {

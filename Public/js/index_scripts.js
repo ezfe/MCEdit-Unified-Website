@@ -28,4 +28,13 @@ window.onload = function() {
         $('.override-platform-specific-downloads-container').hide();
         return false;
     });
+    
+    const alerts = document.getElementsByClassName("site-alert")
+    for (var i = 0; i < alerts.length; i++) {
+        const alert = alerts[i];
+        const alertid = alert.attributes["alertid"].value;
+        if (localStorage.getItem(`dismissed-alert-${alertid}`) === "yes") {
+            alert.remove();
+        }
+    }
 }

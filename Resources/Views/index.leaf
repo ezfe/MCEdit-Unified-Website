@@ -1,7 +1,7 @@
 #set("title") { MCEdit Unified }
 
 #set("header-contents") {
-	<script src="js/index-trigger.js"></script>
+	<script src="js/index_scripts.js"></script>
 	<style>
 		@media (min-width: 992px) {
 			.releasenote-title {
@@ -18,7 +18,7 @@
 
 #set("body-contents") {
 	#for(alert in alerts) {
-		<div id="alert-#(alert.id)" class="row">
+		<div class="site-alert" alertid="#(alert.id)" class="row">
 			<div class="col-12">
 				<div class="alert alert-#(alert.alertStyle)" role="alert">
 					#if(alert.userMayHide) {
@@ -37,12 +37,6 @@
 		</div>
 	}
 
-	<script>
-		#for(alert in alerts) {
-			if (localStorage.getItem('dismissed-alert-#(alert.id)') === "yes") { document.querySelector('#alert-#(alert.id)').remove() \}
-		}
-	</script>
-	
 	<div class="row" id="center_jumbo_row">
 		<div class="col-md-12">
 			<div class="jumbotron" style="text-align:center;" id="downloads">
