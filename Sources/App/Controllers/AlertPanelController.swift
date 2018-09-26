@@ -65,8 +65,8 @@ class AlertPanelController: RouteCollection {
             var alert = alert
             alert.isSitewideVisible = false
             return alert.save(on: req)
-            }.map(to: Response.self) { _ in
-                return req.redirect(to: "/alert-panel")
+        }.map(to: Response.self) { _ in
+            return req.redirect(to: "/alert-panel")
         }
     }
 }
