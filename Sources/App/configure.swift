@@ -55,7 +55,7 @@ public func configure(
 fileprivate func addDatabaseMigrations(_ migrations: inout MigrationConfig) {
     migrations.add(model: ReleaseMetaData.self, database: .psql)
     migrations.add(model: ContributorMetaData.self, database: .psql)
-    
+    migrations.add(model: Alert.self, database: .psql)
     migrations.add(migration: UserRole.self, database: .psql)
     migrations.add(model: User.self, database: .psql)
 }

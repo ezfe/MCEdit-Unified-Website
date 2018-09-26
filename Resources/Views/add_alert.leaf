@@ -1,0 +1,57 @@
+#set("title") { MCEdit Unified – Add Alert }
+
+#set("header-contents") {}
+
+#set("body-contents") {
+
+    <form method="post" action="/alert-panel/add-alert">
+        <br><br>
+        <input class="form-control" type="text" placeholder="Alert Title" name="title"/>
+        <br>
+        <textarea class="form-control" placeholder="Alert Body" name="body"></textarea>
+        <hr>
+        <input class="form-control" type="text" placeholder="Button Text" name="learnMoreText"/>
+        <br>
+        <script>
+            function updateIcon() {
+                let newIcon = document.getElementById('icon-text-field').value
+                document.getElementById('icon-preview-el').innerHTML = `<i class="${newIcon\}"></i>`;
+            \}
+        </script>
+        <input id="icon-text-field" class="form-control" type="text" placeholder="Button Icon" name="learnMoreIcon" onkeyup="updateIcon()"/>
+        <a href="https://fontawesome.com/icons?d=gallery&m=free">Find icons...</a><br>
+        For example: <code>fab fa-discord</code><br>
+        Icon preview: <span id="icon-preview-el"><i></i></span>
+        <br><br>
+        <input class="form-control" type="text" placeholder="Button URL" name="learnMoreURL"/>
+
+        <hr>
+        
+        <br>
+        <input class="form-control" type="text" placeholder="Alert Style" name="alertStyle"/>
+        <a href="http://getbootstrap.com/docs/4.1/components/alerts/">Alert styles...</a><br>
+        For example, <code>info</code>
+        <br><br>
+        <input class="form-control" type="text" placeholder="Button Style" name="buttonStyle"/>
+        <a href="http://getbootstrap.com/docs/4.1/components/buttons/">Button styles...</a><br>
+        For example, <code>success</code>
+
+        <hr>
+
+        <br>
+        <input type="hidden" value="false" name="isSitewideVisible"/>
+        <label><input type="checkbox" value="true" name="isSitewideVisible"/> Show to visitors?</label>
+
+        <br>
+        <input type="hidden" value="false" name="userMayHide"/>
+        <label><input type="checkbox" value="true" name="userMayHide"/> Allow user to dismiss?</label>
+        
+        <hr>
+
+        <br><br>
+        <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Add...</button>
+    </form>
+}
+
+#set("nav_page") {register}
+#embed("master")

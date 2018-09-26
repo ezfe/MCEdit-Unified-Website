@@ -1,0 +1,40 @@
+#set("title") { MCEdit Unified – Alert Panel }
+
+#set("header-contents") {}
+
+#set("body-contents") {
+
+    #for(alert in alerts) {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-#(alert.alertStyle)" role="alert">
+                    #if(alert.userMayHide) {
+                        <button type="button" class="close"aria-label="Close" onclick="alert('The alert would dissapear when this is clicked')">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    }
+                    <h4 class="alert-heading">#(alert.title)</h4>
+                    <p>
+                        #(alert.body)
+                    </p>
+                    <hr>
+                    <a href="#(alert.learnMoreURL)" target="_" class="btn btn-#(alert.buttonStyle)"><i class="#(alert.learnMoreIcon)"></i> #(alert.learnMoreText)</a>
+                </div>
+            </div>
+        </div>
+        <a class="btn btn-danger" href="/alert-panel/remove-alert/#(alert.id)"><i class="fas fa-trash"></i> Remove this alert</a>
+        #if(alert.isSitewideVisible) {
+            <a class="btn btn-warning" href="/alert-panel/hide-alert/#(alert.id)"><i class="fas fa-eye-slash"></i> Hide this alert</a>
+        } else {
+            <a class="btn btn-success" href="/alert-panel/show-alert/#(alert.id)"><i class="fas fa-eye"></i> Show this alert</a>
+
+        }
+
+        <hr>
+    }
+
+    <a class="btn btn-success" href="/alert-panel/add-alert"><i class="fas fa-plus"></i> Add Alert</a>
+}
+
+#set("nav_page") {register}
+#embed("master")

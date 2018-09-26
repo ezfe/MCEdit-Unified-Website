@@ -18,7 +18,10 @@ public func routes(_ router: Router) throws {
             let releases: [Release]
             let latestRelease: Release
             let authenticated: Bool
+            let alerts: [Alert]
         }
+        
+        let alertsFuture = Alert.query(on: req).filter(\Alert.isSitewideVisible == true).all()
         
         return try getReleases(on: req).flatMap(to: [Release].self) { releases in
             return releases.map { release in
@@ -37,10 +40,10 @@ public func routes(_ router: Router) throws {
                 }
             }.flatten(on: req)
         }.flatMap(to: View.self) { releases in
-            return try getLatestRelease(on: req).flatMap(to: View.self) { latestRelease in
+            return try getLatestRelease(on: req).and(alertsFuture).flatMap(to: View.self) { (latestRelease, alerts) in
                 let authed = (user?.role ?? .regular) >= .manager
                 
-                let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed)
+                let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed, alerts: alerts)
                 return try req.view().render("index", context)
             }
         }
@@ -83,6 +86,7 @@ public func routes(_ router: Router) throws {
     try router.grouped("contributors").register(collection: ContributorController())
     try router.grouped("auth").register(collection: AuthenticationController())
     try router.grouped("user-panel").register(collection: UserPanelController())
+    try router.grouped("alert-panel").register(collection: AlertPanelController())
 
     router.get("tutorial") { req -> Future<View> in
         return try req.view().render("tutorial")

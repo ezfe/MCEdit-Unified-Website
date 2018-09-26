@@ -17,24 +17,32 @@
 }
 
 #set("body-contents") {
-    <div class="row" id="minecon-alert">
-        <div class="col-12">
-            <div class="alert alert-info" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="localStorage.setItem('dismissed-minecon-2018','yes');">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="alert-heading">Minecon 2018 – September 29th</h4>
-                <p>
-                    The MCEdit-Unified team and a few filter makers will have a panel in Minecon Earth 2018! We'll show some cool MCEdit tricks, filters, and other stuff we've been working on behind the scenes! It's going to be really cool and we hope you'll enjoy it!
-                </p>
-                <hr>
-                <a href="https://discord.gg/Z9HGv3r" target="_" class="btn btn-success"><i class="fab fa-discord"></i> Minecon Panel Discord</a>
-            </div>
-        </div>
-    </div>
-    <script>
-        if (localStorage.getItem('dismissed-minecon-2018') === "yes") { document.querySelector('#minecon-alert').remove() \}
-    </script>
+	#for(alert in alerts) {
+		<div id="alert-#(alert.id)" class="row">
+			<div class="col-12">
+				<div class="alert alert-#(alert.alertStyle)" role="alert">
+					#if(alert.userMayHide) {
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="localStorage.setItem('dismissed-alert-#(alert.id)','yes');">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					}
+					<h4 class="alert-heading">#(alert.title)</h4>
+					<p>
+						#(alert.body)
+					</p>
+					<hr>
+					<a href="#(alert.learnMoreURL)" target="_" class="btn btn-#(alert.buttonStyle)"><i class="#(alert.learnMoreIcon)"></i> #(alert.learnMoreText)</a>
+				</div>
+			</div>
+		</div>
+	}
+
+	<script>
+		#for(alert in alerts) {
+			if (localStorage.getItem('dismissed-alert-#(alert.id)') === "yes") { document.querySelector('#alert-#(alert.id)').remove() \}
+		}
+	</script>
+	
 	<div class="row" id="center_jumbo_row">
 		<div class="col-md-12">
 			<div class="jumbotron" style="text-align:center;" id="downloads">
