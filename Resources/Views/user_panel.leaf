@@ -22,7 +22,10 @@
 
     <br>
     <hr>
-
+    #if(user.role != "regular") { <!-- maybe not great -->
+        <a href="/alert-panel">Manage alerts</a>
+    }
+    <br>
     <a href="/auth/logout">Logout</a>
 }
 #set("nav_page") {register}
