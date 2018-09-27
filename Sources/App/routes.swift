@@ -202,23 +202,35 @@ func getReleases(on req: Request) throws -> Future<[Release]> {
     }
 }
 
-func getServerAccessToken(env: Environment) throws -> String {
-    guard let token = Environment.get("MCEDIT_GITHUB_SERVER_ACCESS_TOKEN") else {
-        throw Abort(.internalServerError, reason: "Missing environment variable for Github access token")
-    }
-    return token
+//func getServerAccessToken(env: Environment) throws -> String {
+//    guard let token = Environment.get("MCEDIT_GITHUB_SERVER_ACCESS_TOKEN") else {
+//        throw Abort(.internalServerError, reason: "Missing environment variable for Github access token")
+//    }
+//    return token
+//}
+//
+//func getClientID(env: Environment) throws -> String {
+//    guard let clientID = Environment.get("MCEDIT_GITHUB_CLIENT_ID") else {
+//        throw Abort(.internalServerError, reason: "Missing environment variable for Github client ID")
+//    }
+//    return clientID
+//}
+//
+//func getClientSecret(env: Environment) throws -> String {
+//    guard let clientSecret = Environment.get("MCEDIT_GITHUB_CLIENT_SECRET") else {
+//        throw Abort(.internalServerError, reason: "Missing environment variable for Github client secret")
+//    }
+//    return clientSecret
+//}
+
+func getServerAccessToken(env: Environment) -> String {
+    return "86af627475410d7129cdefc8f35254434ccb21ae"
 }
 
-func getClientID(env: Environment) throws -> String {
-    guard let clientID = Environment.get("MCEDIT_GITHUB_CLIENT_ID") else {
-        throw Abort(.internalServerError, reason: "Missing environment variable for Github client ID")
-    }
-    return clientID
+func getClientID(env: Environment) -> String {
+    return env.isRelease ? "4d162dd6f6e9872bbee4" : "f5502eaf4ade48cd63f4"
 }
 
-func getClientSecret(env: Environment) throws -> String {
-    guard let clientSecret = Environment.get("MCEDIT_GITHUB_CLIENT_SECRET") else {
-        throw Abort(.internalServerError, reason: "Missing environment variable for Github client secret")
-    }
-    return clientSecret
+func getClientSecret(env: Environment) -> String {
+    return env.isRelease ? "0aceae20334be499b6edc3f395da090d5993b9f6" : "de497386b5fb737fc51ef57c8e4395d6802f58f3"
 }
