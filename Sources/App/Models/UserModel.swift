@@ -64,6 +64,20 @@ struct User: Content {
         }
         return githubFuture
     }
+    
+    /**
+     * Update the password field with a new value
+     *
+     * This will not save the model, you must call .save() as well
+     */
+    mutating func changePassword(current currentPassword: String, plaintextNew: String) throws -> Bool {
+        if try BCrypt.verify(currentPassword, created: self.password) {
+            self.password = try BCrypt.hash(plaintextNew)
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 //MARK:- Database
@@ -103,6 +117,11 @@ extension User {
     struct RegisterRequest: Content {
         var email: String
         var password: String
+    }
+    
+    struct ChangePasswordRequest: Content {
+        let currentPassword: String
+        let newPassword: String
     }
 }
 

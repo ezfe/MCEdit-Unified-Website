@@ -19,6 +19,9 @@ class UserPanelController: RouteCollection {
         protectedRoutes.get("remove-github", use: removeGithub)
         protectedRoutes.get("connect-github", use: connectGithub)
         protectedRoutes.get("connect-github-callback", use: connectGithubCallback)
+        
+        protectedRoutes.get("change-password", use: changePassword)
+        protectedRoutes.post(User.ChangePasswordRequest.self, at: "change-password", use: changePasswordPost)
     }
     
     func index(_ req: Request) throws -> Future<AnyResponse> {
@@ -35,7 +38,7 @@ class UserPanelController: RouteCollection {
             
             if let githubLogin = githubResponse?.login,
                 user.role == .regular,
-                ["ezfe", "Podshot", "Khroki", "TrazLander"].contains(githubLogin) {
+                ["ezfe", "Podshot", "Khroki", "TrazLander", "naor2013"].contains(githubLogin) {
                 
                 user.role = .manager
                 return user.save(on: req).map(to: AnyResponse.self) { _ in
@@ -46,7 +49,7 @@ class UserPanelController: RouteCollection {
             let ctx = UserContext(user: authenticatedUser, githubUsername: githubResponse?.login)
             
             return Future.map(on: req) {
-                return try AnyResponse(req.view().render("user_panel", ctx))
+                return try AnyResponse(req.view().render("user-panel/index", ctx))
             }
         }
     }
@@ -123,6 +126,24 @@ class UserPanelController: RouteCollection {
             return user.save(on: req)
         }.map(to: Response.self) { user in
             return req.redirect(to: "/user-panel")
+        }
+    }
+    
+    func changePassword(_ req: Request) throws -> Future<View> {
+        return try req.view().render("user-panel/change-password")
+    }
+    
+    func changePasswordPost(_ req: Request, pwRequest: User.ChangePasswordRequest) throws -> Future<AnyResponse> {
+        var user = try req.requireAuthenticated(User.self)
+        
+        if try user.changePassword(current: pwRequest.currentPassword, plaintextNew: pwRequest.newPassword) {
+            return user.save(on: req).map(to: AnyResponse.self) { _ in
+                return AnyResponse(req.redirect(to: "/user-panel"))
+            }
+        } else {
+            return Future.map(on: req) {
+                try AnyResponse(req.view().render("user-panel/change-password"))
+            }
         }
     }
 }
