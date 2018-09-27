@@ -18,7 +18,7 @@
 
 #set("body-contents") {
 	#for(alert in alerts) {
-		<div class="site-alert" alertid="#(alert.id)" class="row">
+		<div class="row site-alert" alertid="#(alert.id)" class="row">
 			<div class="col-12">
 				<div class="alert alert-#(alert.alertStyle)" role="alert">
 					#if(alert.userMayHide) {
