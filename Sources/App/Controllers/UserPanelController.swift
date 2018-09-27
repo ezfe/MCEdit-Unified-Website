@@ -68,7 +68,7 @@ class UserPanelController: RouteCollection {
         let stateString = "\(Int.random(in: 100_000...999_999))"
         session["github_oauth_state"] = stateString
         
-        let clientIdValue = getClientID(env: req.environment)
+        let clientIdValue = try getClientID(env: req.environment)
         
         let clientID = URLQueryItem(name: "client_id", value: clientIdValue)
         let state = URLQueryItem(name: "state", value: stateString)
@@ -107,7 +107,7 @@ class UserPanelController: RouteCollection {
             let access_token: String
         }
         
-        let requestContent = GithubAccessTokenRequest(client_id: getClientID(env: req.environment),
+        let requestContent = try GithubAccessTokenRequest(client_id: getClientID(env: req.environment),
                                                       client_secret: getClientSecret(env: req.environment),
                                                       code: code,
                                                       state: state)

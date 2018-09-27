@@ -177,7 +177,7 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
+    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
@@ -202,14 +202,23 @@ func getReleases(on req: Request) throws -> Future<[Release]> {
     }
 }
 
-func getServerAccessToken(env: Environment) -> String {
-    return "1c9b12b56f2bc1918fee45a564dc53f765854f49"
+func getServerAccessToken(env: Environment) throws -> String {
+    guard let token = Environment.get("MCEDIT_GITHUB_SERVER_ACCESS_TOKEN") else {
+        throw Abort(.internalServerError, reason: "Missing environment variable for Github access token")
+    }
+    return token
 }
 
-func getClientID(env: Environment) -> String {
-    return env.isRelease ? "4d162dd6f6e9872bbee4" : "f5502eaf4ade48cd63f4"
+func getClientID(env: Environment) throws -> String {
+    guard let clientID = Environment.get("MCEDIT_GITHUB_CLIENT_ID") else {
+        throw Abort(.internalServerError, reason: "Missing environment variable for Github client ID")
+    }
+    return clientID
 }
 
-func getClientSecret(env: Environment) -> String {
-    return env.isRelease ? "0aceae20334be499b6edc3f395da090d5993b9f6" : "de497386b5fb737fc51ef57c8e4395d6802f58f3"
+func getClientSecret(env: Environment) throws -> String {
+    guard let clientSecret = Environment.get("MCEDIT_GITHUB_CLIENT_SECRET") else {
+        throw Abort(.internalServerError, reason: "Missing environment variable for Github client secret")
+    }
+    return clientSecret
 }
