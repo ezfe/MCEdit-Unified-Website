@@ -113,7 +113,7 @@ public func routes(_ router: Router) throws {
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=\(getServerAccessToken(env: req.environment))"
+    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("latest_release", as: Release.self).flatMap(to: Release.self) { release in
@@ -128,7 +128,6 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
             let client = try req.make(Client.self)
             return client.get(url).flatMap(to: GithubRelease.self) { response in
                 print("Fetching from Internet")
-                print(String(data: response.http.body.data!, encoding: .utf8))
                 return try response.content.decode(GithubRelease.self)
                 }.flatMap(to: Release.self) { ghRelease in
                     print("Storing in Cache")
@@ -145,7 +144,7 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
 }
 
 func getContributors(on req: Request, as user: User?) throws -> Future<[Contributor]> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=\(getServerAccessToken(env: req.environment))"
+    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=\(getServerAccessToken(env: req.environment))"
     
     let userGithub = try user?.githubDetails(on: req) ?? Future.map(on: req) { return nil}
     
@@ -179,7 +178,7 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
+    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
