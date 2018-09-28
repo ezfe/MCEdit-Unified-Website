@@ -12,7 +12,7 @@ public func routes(_ router: Router) throws {
     let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck())
     
     authSessionRoutes.get { req -> Future<View> in
-        return try req.view().render("index-nogit")
+//        return try req.view().render("index-nogit")
         let user = try req.authenticated(User.self)
         
         struct Context: Codable {
@@ -113,7 +113,7 @@ public func routes(_ router: Router) throws {
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("latest_release", as: Release.self).flatMap(to: Release.self) { release in
@@ -145,7 +145,7 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
 }
 
 func getContributors(on req: Request, as user: User?) throws -> Future<[Contributor]> {
-    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=1c9b12b56f2bc1918fee45a564dc53f765854f49"
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=\(getServerAccessToken(env: req.environment))"
     
     let userGithub = try user?.githubDetails(on: req) ?? Future.map(on: req) { return nil}
     
