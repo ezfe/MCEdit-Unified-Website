@@ -12,6 +12,7 @@ public func routes(_ router: Router) throws {
     let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck())
     
     authSessionRoutes.get { req -> Future<View> in
+        return try req.view().render("index-nogit")
         let user = try req.authenticated(User.self)
         
         struct Context: Codable {
@@ -127,6 +128,7 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
             let client = try req.make(Client.self)
             return client.get(url).flatMap(to: GithubRelease.self) { response in
                 print("Fetching from Internet")
+                print(String(data: response.http.body.data!, encoding: .utf8))
                 return try response.content.decode(GithubRelease.self)
                 }.flatMap(to: Release.self) { ghRelease in
                     print("Storing in Cache")
@@ -177,7 +179,7 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {
-    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
     
     let cache = try req.make(MemoryKeyedCache.self)
     return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
@@ -224,7 +226,7 @@ func getReleases(on req: Request) throws -> Future<[Release]> {
 //}
 
 func getServerAccessToken(env: Environment) -> String {
-    return "86af627475410d7129cdefc8f35254434ccb21ae"
+    return "37b639e1762455df3bb4ac405a40e85a1b1bc4e2"
 }
 
 func getClientID(env: Environment) -> String {
