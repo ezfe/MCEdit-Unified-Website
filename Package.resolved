@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/crypto.git",
         "state": {
           "branch": null,
-          "revision": "5605334590affd4785a5839806b4504407e054ac",
-          "version": "3.3.0"
+          "revision": "4b85405430df1892ee3aa1554bdb477e96cf46ad",
+          "version": "3.2.0"
         }
       },
       {
@@ -125,15 +125,6 @@
           "branch": null,
           "revision": "613199852f921698077de51b72f803cf537fa42e",
           "version": "1.0.0"
-        }
-      },
-      {
-        "package": "Redis",
-        "repositoryURL": "https://github.com/vapor/redis.git",
-        "state": {
-          "branch": null,
-          "revision": "2fb20632db3ad86e2b3596cd34605f694a92c177",
-          "version": "3.0.2"
         }
       },
       {
