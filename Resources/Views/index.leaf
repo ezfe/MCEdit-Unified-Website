@@ -164,7 +164,7 @@
 							#if(authenticated) {
 								<div class="row">
 									<div class="col">
-										<form action="/setCommentURL/#(release.metadata.id)" method="post">
+										<form action="/set-comment-url/#(release.metadata.id)" method="post">
 											<input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url" value="#(release.metadata.commentURL)"/>
 											<button class="btn btn-default btn-block" type="submit">#if(release.metadata.commentURL){Update}else{Set}&nbsp;URL</button>
 										</form>
@@ -174,7 +174,7 @@
 								#if(release.metadata.commentURL) {
 									<div class="row">
 										<div class="col">
-											<form action="/removeCommentURL/#(release.metadata.id)" method="post">
+											<form action="/remove-comment-url/#(release.metadata.id)" method="post">
 												<button style="margin-top: 5px;" class="btn btn-danger btn-block" type="submit">Remove URL</button>
 											</form>
 										</div>

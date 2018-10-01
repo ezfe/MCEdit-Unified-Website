@@ -12,8 +12,11 @@ import FluentPostgreSQL
 class IndexController: RouteCollection {
     func boot(router: Router) throws {
         let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
-        
+        let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck(level: .manager))
+
         authSessionRoutes.get(use: index)
+        protectedRoutes.get("set-comment-url", UUID.parameter, use: setCommentURL)
+        protectedRoutes.get("remove-comment-url", UUID.parameter, use: removeCommentURL)
     }
     
     func index(_ req: Request) throws -> Future<View> {
@@ -53,4 +56,32 @@ class IndexController: RouteCollection {
             }
         }
     }
+    
+    func setCommentURL(_ req: Request) throws -> Future<Response> {
+        let metadataID = try req.parameters.next(UUID.self)
+        let url: String = try req.content.syncGet(at: "url")
+        
+        return try updateCommentURL(on: req, id: metadataID, with: url)
+    }
+    
+    func removeCommentURL(_ req: Request) throws -> Future<Response> {
+        let metadataID = try req.parameters.next(UUID.self)
+        return try updateCommentURL(on: req, id: metadataID, with: nil)
+    }
+
 }
+
+func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
+    return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
+        if var releaseMetadata = releaseMetadata {
+            print("Found metadata object")
+            print("assigning url \(String(describing: url))")
+            releaseMetadata.commentURL = url
+            _ = releaseMetadata.save(on: req)
+        } else {
+            print("No metadata object with id: \(id)")
+        }
+        return req.redirect(to: "/")
+    }
+}
+

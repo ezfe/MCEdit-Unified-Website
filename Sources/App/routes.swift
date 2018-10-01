@@ -16,41 +16,7 @@ public func routes(_ router: Router) throws {
     try router.grouped("contributors").register(collection: ContributorController())
     try router.grouped("auth").register(collection: AuthenticationController())
     try router.grouped("user-panel").register(collection: UserPanelController())
-    try router.grouped("alert-panel").register(collection: AlertPanelController())
-
-    
-    protectedRoutes.post("setCommentURL", UUID.parameter) { req -> Future<Response> in
-        let user = try req.requireAuthenticated(User.self)
-        let metadataID = try req.parameters.next(UUID.self)
-        let url: String = try req.content.syncGet(at: "url")
-        
-        return try updateCommentURL(on: req, as: user, id: metadataID, with: url)
-    }
-    
-    protectedRoutes.post("removeCommentURL", UUID.parameter) { req -> Future<Response> in
-        let user = try req.requireAuthenticated(User.self)
-        let metadataID = try req.parameters.next(UUID.self)
-        
-        return try updateCommentURL(on: req, as: user, id: metadataID, with: nil)
-    }
-    
-    func updateCommentURL(on req: Request, as user: User, id: UUID, with url: String?) throws -> Future<Response> {
-        guard user.role >= .manager else {
-            throw Abort(.forbidden)
-        }
-        
-        return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
-            if var releaseMetadata = releaseMetadata {
-                print("Found metadata object")
-                print("assigning url \(String(describing: url))")
-                releaseMetadata.commentURL = url
-                _ = releaseMetadata.save(on: req)
-            } else {
-                print("No metadata object with id: \(id)")
-            }
-            return req.redirect(to: "/")
-        }
-    }
+    try router.grouped("alert-panel").register(collection: AlertPanelController())    
     
     router.get("tutorial") { req -> Future<View> in
         return try req.view().render("tutorial")
