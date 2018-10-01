@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/crypto.git",
         "state": {
           "branch": null,
-          "revision": "4b85405430df1892ee3aa1554bdb477e96cf46ad",
-          "version": "3.2.0"
+          "revision": "5605334590affd4785a5839806b4504407e054ac",
+          "version": "3.3.0"
         }
       },
       {
