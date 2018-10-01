@@ -7,10 +7,6 @@ import Fluent
 ///
 /// [Learn More →](https://docs.vapor.codes/3.0/getting-started/structure/#routesswift)
 public func routes(_ router: Router) throws {
-    
-    let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
-    let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck())
-    
     try router.register(collection: IndexController())
     try router.grouped("about").register(collection: AboutController())
     try router.grouped("contributors").register(collection: ContributorController())
@@ -30,15 +26,7 @@ public func routes(_ router: Router) throws {
         let cache = try req.make(MemoryKeyedCache.self)
         _ = cache.remove("releases")
         return "OK"
-    }
-    
-    router.get("releases") { req -> Future<[Release]> in
-        return try getReleases(on: req)
-    }
-    
-    router.get("releases", "current") { req -> Future<Release> in
-        return try getLatestRelease(on: req)
-    }
+    }    
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {

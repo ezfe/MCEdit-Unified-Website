@@ -18,8 +18,6 @@ struct ContributorMetaData: Content, PostgreSQLUUIDModel, Migration {
     var twitterUsername: String?
     var youtubeUsername: String?
     var redditUsername: String?
-
-    var webcheck: Bool = false
     
     init(id: UUID?, contributorId: Int) {
         self.id = id
@@ -27,18 +25,15 @@ struct ContributorMetaData: Content, PostgreSQLUUIDModel, Migration {
     }
 }
 
-struct ContributorMigration1: Migration {
+struct ContributorMigration2: Migration {
     typealias Database = PostgreSQLDatabase
-
+    
     static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
         return Database.update(ContributorMetaData.self, on: connection) { builder in
-            builder.field(for: \ContributorMetaData.twitterUsername)
-            builder.field(for: \ContributorMetaData.youtubeUsername)
-            builder.field(for: \ContributorMetaData.redditUsername)
-            builder.field(for: \ContributorMetaData.webcheck, type: PostgreSQLDataType.bool)
+            builder.deleteField(PostgreSQLColumnIdentifier.column(nil, "webcheck"))
         }
     }
-
+    
     static func revert(on connection: PostgreSQLConnection) -> Future<Void> {
         return Future.map(on: connection) {}
     }
