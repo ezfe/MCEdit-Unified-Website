@@ -9,24 +9,18 @@ import Fluent
 public func routes(_ router: Router) throws {
     try router.register(collection: IndexController())
     try router.grouped("about").register(collection: AboutController())
+    try router.grouped("tutorial").register(collection: TutorialController())
+    try router.grouped("requirements").register(collection: RequirementsController())
     try router.grouped("contributors").register(collection: ContributorController())
     try router.grouped("auth").register(collection: AuthenticationController())
     try router.grouped("user-panel").register(collection: UserPanelController())
     try router.grouped("alert-panel").register(collection: AlertPanelController())    
-    
-    router.get("tutorial") { req -> Future<View> in
-        return try req.view().render("tutorial")
-    }
-    
-    router.get("requirements") { req -> Future<View> in
-        return try req.view().render("requirements")
-    }
-    
+        
     router.get("cache", "invalidate") { req -> String in
         let cache = try req.make(MemoryKeyedCache.self)
         _ = cache.remove("releases")
         return "OK"
-    }    
+    }
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {
