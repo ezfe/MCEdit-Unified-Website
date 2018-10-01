@@ -30,16 +30,57 @@
         <input id="alert-style-text-field" class="form-control" type="text" placeholder="Alert Style" name="alertStyle" onkeyup="updateButton()" required/>
         <a target="_" href="http://getbootstrap.com/docs/4.1/components/alerts/">Alert styles...</a><br>
         For example, <code>info</code>
-        <br><br>
-        <input id="button-style-text-field" class="form-control" type="text" placeholder="Button Style" name="buttonStyle" onkeyup="updateButton()" />
-        <a target="_" href="http://getbootstrap.com/docs/4.1/components/buttons/">Button styles...</a><br>
-        For example, <code>success</code>
+        <hr>
+        <h3>Button Style</h3>
+        <div class="row">
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="primary" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=primary]').click()" type="button" class="btn btn-primary">Primary</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="secondary" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=secondary]').click()" type="button" class="btn btn-secondary">Secondary</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="success" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=success]').click()" type="button" class="btn btn-success">Success</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="danger" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=danger]').click()" type="button" class="btn btn-danger">Danger</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="warning" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=warning]').click()" type="button" class="btn btn-warning">Warning</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="info" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=info]').click()" type="button" class="btn btn-info">Info</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="light" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=light]').click()" type="button" class="btn btn-light">Light</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="dark" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=dark]').click()" type="button" class="btn btn-dark">Dark</button>
+            </div>
+            <div class="col">
+                <input class="button-style-radio" type="radio" name="buttonStyle" value="link" onchange="updateButton()">
+                &nbsp;&nbsp;&nbsp;<button onclick="document.querySelector('input[value=link]').click()" type="button" class="btn btn-link">Link</button>
+            </div>
+        </div>
+
         <hr>
         <h3>Alert Preview</h3>
 
         <div class="row">
             <div class="col-12">
-                <div id="alert-main-div" class="alert alert-info" role="alert">                    
+                <div id="alert-main-div" class="alert alert-" role="alert">                    
                     <h4 id="alert-heading" class="alert-heading"></h4>
                     <p id="alert-body"></p>
                     <hr>
@@ -51,9 +92,10 @@
         <script>
             function updateButton() {
                 let newIcon = document.getElementById('icon-text-field').value
-                let buttonStyle = document.getElementById('button-style-text-field').value
                 let buttonText = document.getElementById('button-text-field').value
                 let buttonURL = document.getElementById('button-url-text-field').value
+
+                let buttonStyle = document.querySelector('input[name="buttonStyle"]:checked').value
 
                 let alertStyle = document.getElementById('alert-style-text-field').value
                 document.getElementById('alert-main-div').className = `alert alert-${alertStyle\}`
