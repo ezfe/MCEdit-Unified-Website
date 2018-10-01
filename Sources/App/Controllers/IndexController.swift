@@ -69,19 +69,18 @@ class IndexController: RouteCollection {
         return try updateCommentURL(on: req, id: metadataID, with: nil)
     }
 
-}
-
-func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
-    return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
-        if var releaseMetadata = releaseMetadata {
-            print("Found metadata object")
-            print("assigning url \(String(describing: url))")
-            releaseMetadata.commentURL = url
-            _ = releaseMetadata.save(on: req)
-        } else {
-            print("No metadata object with id: \(id)")
+    private func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
+        return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
+            if var releaseMetadata = releaseMetadata {
+                print("Found metadata object")
+                print("assigning url \(String(describing: url))")
+                releaseMetadata.commentURL = url
+                _ = releaseMetadata.save(on: req)
+            } else {
+                print("No metadata object with id: \(id)")
+            }
+            return req.redirect(to: "/")
         }
-        return req.redirect(to: "/")
     }
 }
 
