@@ -15,42 +15,21 @@ public func routes(_ router: Router) throws {
     try router.grouped("auth").register(collection: AuthenticationController())
     try router.grouped("user-panel").register(collection: UserPanelController())
     try router.grouped("alert-panel").register(collection: AlertPanelController())    
-        
-    router.get("cache", "invalidate") { req -> String in
-        let cache = try req.make(MemoryKeyedCache.self)
-        _ = cache.remove("releases")
-        return "OK"
-    }
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {
     let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=\(getServerAccessToken(env: req.environment))"
     
-    let cache = try req.make(MemoryKeyedCache.self)
-    return cache.get("latest_release", as: Release.self).flatMap(to: Release.self) { release in
-        if let release = release {
-            /* cache */
-            print("Fetching from Cache")
-            return Future.map(on: req) {
-                return release
-            }
-        } else {
-            /* network */
-            let client = try req.make(Client.self)
-            return client.get(url).flatMap(to: GithubRelease.self) { response in
-                print("Fetching from Internet")
-                return try response.content.decode(GithubRelease.self)
-                }.flatMap(to: Release.self) { ghRelease in
-                    print("Storing in Cache")
-                    guard let release = Release(from: ghRelease) else {
-                        throw Abort(.internalServerError)
-                    }
-                    
-                    return cache.set("latest_release", to: release).map(to: Release.self) {
-                        return release
-                    }
-            }
+    let client = try req.make(Client.self)
+    return client.get(url).flatMap(to: GithubRelease.self) { response in
+        return try response.content.decode(GithubRelease.self)
+    }.map(to: Release.self) { ghRelease in
+        print("Storing in Cache")
+        guard let release = Release(from: ghRelease) else {
+            throw Abort(.internalServerError)
         }
+        
+        return release
     }
 }
 
@@ -59,22 +38,9 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
     
     let userGithub = try user?.githubDetails(on: req) ?? Future.map(on: req) { return nil}
     
-    let cache = try req.make(MemoryKeyedCache.self)
-    return cache.get("contributors", as: [GithubContributor].self).flatMap(to: [GithubContributor].self) { users in
-        if let users = users {
-            return Future.map(on: req) {
-                return users
-            }
-        } else {
-            let client = try req.make(Client.self)
-            return client.get(url).flatMap(to: [GithubContributor].self) { response in
-                return try response.content.decode([GithubContributor].self)
-                }.flatMap(to: [GithubContributor].self) { users in
-                    return cache.set("contributors", to: users).map(to: [GithubContributor].self) {
-                        return users
-                    }
-            }
-        }
+    let client = try req.make(Client.self)
+    return client.get(url).flatMap(to: [GithubContributor].self) { response in
+        return try response.content.decode([GithubContributor].self)
     }.flatMap(to: [Contributor].self) { ghContributors in
         return userGithub.map(to: [Contributor].self) { userGithub in
             let contributors = ghContributors.map { contributor -> Contributor in
@@ -91,26 +57,11 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 func getReleases(on req: Request) throws -> Future<[Release]> {
     let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
     
-    let cache = try req.make(MemoryKeyedCache.self)
-    return cache.get("releases", as: [Release].self).flatMap(to: [Release].self) { releases in
-        if let releases = releases {
-            // Return the value found in the cache
-            return Future.map(on: req) {
-                return releases
-            }
-        } else {
-            // Nothing is in the cache, need to make a trip to
-            let client = try req.make(Client.self)
-            return client.get(url).flatMap(to: [GithubRelease].self) { response in
-                return try response.content.decode([GithubRelease].self)
-                }.flatMap(to: [Release].self) { ghReleases in
-                    let releases = ghReleases.compactMap { Release(from: $0) }
-                    
-                    return cache.set("releases", to: releases).map(to: [Release].self) {
-                        return releases
-                    }
-            }
-        }
+    let client = try req.make(Client.self)
+    return client.get(url).flatMap(to: [GithubRelease].self) { response in
+        return try response.content.decode([GithubRelease].self)
+    }.map(to: [Release].self) { ghReleases in
+        return ghReleases.compactMap { Release(from: $0) }
     }
 }
 
