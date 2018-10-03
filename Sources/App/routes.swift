@@ -24,7 +24,6 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
     return client.get(url).flatMap(to: GithubRelease.self) { response in
         return try response.content.decode(GithubRelease.self)
     }.map(to: Release.self) { ghRelease in
-        print("Storing in Cache")
         guard let release = Release(from: ghRelease) else {
             throw Abort(.internalServerError)
         }
