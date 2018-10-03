@@ -29,9 +29,20 @@ class IndexController: RouteCollection {
             let alerts: [Alert]
         }
         
-        let alertsFuture = Alert.query(on: req).filter(\Alert.isSitewideVisible == true).all()
+        let releasesFuture: Future<[Release]>
+        let latestReleaseFuture: Future<Release>
+
+        do {
+            releasesFuture = try getReleases(on: req)
+            latestReleaseFuture = try getLatestRelease(on: req)
+        } catch let err {
+            print(err)
+            return try req.view().render("about", ["error": err.localizedDescription])
+        }
         
-        return try getReleases(on: req).flatMap(to: [Release].self) { releases in
+        let alertsFuture = Alert.query(on: req).filter(\Alert.isSitewideVisible == true).all()
+
+        return releasesFuture.flatMap(to: [Release].self) { releases in
             return releases.map { release in
                 return ReleaseMetaData.query(on: req).filter(\ReleaseMetaData.releaseID == release.id).first().flatMap(to: ReleaseMetaData.self) { rmd in
                     if let rmd = rmd {
@@ -48,7 +59,7 @@ class IndexController: RouteCollection {
                 }
             }.flatten(on: req)
         }.flatMap(to: View.self) { releases in
-            return try getLatestRelease(on: req).and(alertsFuture).flatMap(to: View.self) { (latestRelease, alerts) in
+            return latestReleaseFuture.and(alertsFuture).flatMap(to: View.self) { (latestRelease, alerts) in
                 let authed = (user?.role ?? .regular) >= .manager
                 
                 let context = Context(releases: releases, latestRelease: latestRelease, authenticated: authed, alerts: alerts)
