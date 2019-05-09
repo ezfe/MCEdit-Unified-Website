@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/redis.git",
         "state": {
           "branch": null,
-          "revision": "ab229d186694e6ea64d9e92e8bab28304f92df3c",
-          "version": "3.3.0"
+          "revision": "e54d03380405e22e77b71767a40d5c2d3f1e8767",
+          "version": "3.3.1"
         }
       },
       {

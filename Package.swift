@@ -1,4 +1,4 @@
-// swift-tools-version:4.0
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
@@ -7,7 +7,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "3.3.0"),
         .package(url: "https://github.com/vapor/leaf.git", from: "3.0.2"),
         .package(url: "https://github.com/vapor/fluent-postgresql.git", from: "1.0.0"),
-        .package(url: "https://github.com/vapor/redis.git", from: "3.3.0"),
+        .package(url: "https://github.com/vapor/redis.git", from: "3.3.1"),
         .package(url: "https://github.com/vapor-community/markdown.git", from: "0.4.0"),
         .package(url: "https://github.com/vapor/auth.git", from: "2.0.3"),
         .package(url: "https://github.com/ezfe/pwnedpasswords-provider.git", from: "1.0.0"),
