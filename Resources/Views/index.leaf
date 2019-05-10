@@ -39,7 +39,9 @@
 
     <div class="row">
         <div class="col">
-            <h3>MCEdit Unified for Java 1.12 and Bedrock</h3>
+            <h3 style="text-align: center;">
+                MCEdit Unified for Java 1.12 and Bedrock
+            </h3>
         </div>
     </div>
 
