@@ -19,7 +19,7 @@
 #set("body-contents") {
 	#for(alert in alerts) {
 		<div class="row site-alert" alertid="#(alert.id)" class="row">
-			<div class="col-12">
+			<div class="col">
 				<div class="alert alert-#(alert.alertStyle)" role="alert">
 					#if(alert.userMayHide) {
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="localStorage.setItem('dismissed-alert-#(alert.id)','yes');">
@@ -37,8 +37,14 @@
 		</div>
 	}
 
+    <div class="row">
+        <div class="col">
+            <h3>MCEdit Unified for Minecraft 1.12 and Bedrock</h3>
+        </div>
+    </div>
+
 	<div class="row" id="center_jumbo_row">
-		<div class="col-md-12">
+		<div class="col">
 			<div class="jumbotron" style="text-align:center;" id="downloads">
 				<div class="row">
 					<div class="col-md" id="OSX-downloads-toplevel">
