@@ -90,8 +90,8 @@
 				</div>
 
 				<!-- Row to see beta -->
-				<div class="row">
-					<div class="col-md-6 col-sm-12">
+				<div class="row hidden-versions">
+					<div class="col-md-6 col-sm-12" style="text-align: left;">
 						<i class="fa fa-star"></i> Click <a href="https://github.com/Podshot/MCEdit-Unified-Preview/releases">here</a> for test releases (Windows)
 					</div>
 					<div class="col-md-6 col-sm-12" style="text-align: right;">
