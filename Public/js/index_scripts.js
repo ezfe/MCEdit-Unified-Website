@@ -2,7 +2,7 @@ window.onload = function() {
     var is_OSX = navigator.platform.match(/(Mac)/i);
     var is_Win = (navigator.platform.match(/(Win)/i) && !is_OSX);
 
-    $('.beta-container').hide();
+    $('.hidden-versions').hide();
 
     if (is_OSX) {
         $('#Win-downloads-toplevel').hide();
@@ -24,7 +24,7 @@ window.onload = function() {
         } else if (is_Win) {
             $('#Win-downloads-toplevel').removeClass('col-md-offset-4');
         }
-        $('.beta-container').show();
+        $('.hidden-versions').show();
         $('.override-platform-specific-downloads-container').hide();
         return false;
     });

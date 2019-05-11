@@ -47,7 +47,7 @@
 
 	<div class="row" id="center_jumbo_row">
 		<div class="col">
-			<div class="jumbotron" style="text-align:center;" id="downloads">
+			<div class="jumbotron" style="text-align:center; padding-bottom: 0.25rem;" id="downloads">
 				<div class="row">
 					<div class="col-md" id="OSX-downloads-toplevel">
 						<span>
@@ -83,22 +83,18 @@
 				</div>
 
 				<!-- Row to reveal all platforms on md/lg -->
-				<div class="row d-sm-none d-md-block override-platform-specific-downloads-container" style="position:absolute;bottom:30px;right:70px;display:none;">
-					<div class="col-md-12">
+				<div class="row override-platform-specific-downloads-container">
+					<div class="col-md-12" style="text-align: right;">
 						<i class="fa fa-star"></i> Click <a href="#" class="override-platform-specific-downloads">here</a> to view all versions
 					</div>
 				</div>
 
 				<!-- Row to see beta -->
-				<div class="row d-sm-none d-md-block beta-container" style="position:absolute;bottom:30px;right:70px;display:none;">
-					<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-6 col-sm-12">
 						<i class="fa fa-star"></i> Click <a href="https://github.com/Podshot/MCEdit-Unified-Preview/releases">here</a> for test releases (Windows)
 					</div>
-				</div>
-
-				<!-- Pre-anvil on md/lg -->
-				<div class="row d-sm-none d-md-block" style="position:absolute;bottom:30px;">
-					<div class="col-md-12">
+					<div class="col-md-6 col-sm-12" style="text-align: right;">
 						<i class="fa fa-history"></i> Pre-Anvil versions can be found at <a href="https://github.com/Khroki/mcedit-old/releases?after=0.1.6build315">this page.</a>
 					</div>
 				</div>
