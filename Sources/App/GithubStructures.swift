@@ -6,7 +6,7 @@
 //
 
 import Vapor
-import SwiftMarkdown
+import Ink
 
 /**
  * Container for the data returned from the Github API specifying a specific release
@@ -95,12 +95,8 @@ struct Release: Content {
             }
         }
         
-        do {
-            self.releaseNotes = try markdownToHTML(release.body)
-        } catch let err {
-            print(err.localizedDescription)
-            self.releaseNotes = "?"
-        }
+        let parser = MarkdownParser()
+        self.releaseNotes = parser.html(from: release.body)
     }
 }
 
