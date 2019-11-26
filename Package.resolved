@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/vapor/auth.git",
         "state": {
           "branch": null,
-          "revision": "ed402783942af1d40b5c9e537e956aea51618f0e",
-          "version": "2.0.3"
+          "revision": "e6f61b403727ec124214beb3e57deff579f31d00",
+          "version": "2.0.4"
         }
       },
       {
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/johnsundell/ink.git",
         "state": {
           "branch": null,
-          "revision": "ef49ee8015f8b9cd7480cb8829961ed91495a87c",
-          "version": "0.1.0"
+          "revision": "5278fce691ace4db7cd26e44e8bd35ff326e960a",
+          "version": "0.1.1"
         }
       },
       {
@@ -132,8 +132,8 @@
         "repositoryURL": "https://github.com/vapor/redis.git",
         "state": {
           "branch": null,
-          "revision": "e54d03380405e22e77b71767a40d5c2d3f1e8767",
-          "version": "3.3.1"
+          "revision": "b6c0c98d2219f550ccf23c4bb8f8b14d75356bc6",
+          "version": "3.4.0"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "c86ada59b31c69f08a6abd4f776537cba48d5df6",
-          "version": "3.3.0"
+          "revision": "92a58a9a84e4330500b99fe355a94d29f67abe58",
+          "version": "3.3.1"
         }
       },
       {
