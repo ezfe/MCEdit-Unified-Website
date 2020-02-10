@@ -18,10 +18,13 @@ public func routes(_ router: Router) throws {
 }
 
 func getLatestRelease(on req: Request) throws -> Future<Release> {
-    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest?access_token=\(getServerAccessToken(env: req.environment))"
-    
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases/latest"
+
+    let token = try getServerAccessToken(env: req.environment)
+    let headers = HTTPHeaders([("Authorization", "token \(token)")])
+
     let client = try req.make(Client.self)
-    return client.get(url).flatMap(to: GithubRelease.self) { response in
+    return client.get(url, headers: headers).flatMap(to: GithubRelease.self) { response in
         return try response.content.decode(GithubRelease.self)
     }.map(to: Release.self) { ghRelease in
         guard let release = Release(from: ghRelease) else {
