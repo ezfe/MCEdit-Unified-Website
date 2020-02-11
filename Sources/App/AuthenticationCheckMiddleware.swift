@@ -7,7 +7,6 @@
 
 import Foundation
 import Vapor
-import Authentication
 
 let redirectorSessionUrlKey = "com.ezekielelin.loginRedirector.sessionUrlKey"
 
@@ -45,7 +44,7 @@ struct AuthenticationCheck: Middleware {
         self.level = level
     }
     
-    func respond(to req: Request, chainingTo next: Responder) throws -> Future<Response> {
+    func respond(to req: Request, chainingTo next: Responder) throws -> EventLoopFuture<Response> {
         guard let user = try req.authenticated(User.self) else {
             return try unauthenticated(req)
         }
@@ -57,15 +56,15 @@ struct AuthenticationCheck: Middleware {
         return try next.respond(to: req)
     }
     
-    private func unauthenticated(_ req: Request) throws -> Future<Response> {
+    private func unauthenticated(_ req: Request) throws -> EventLoopFuture<Response> {
         return try self.performAction(req, action: self.unauthenticatedAction)
     }
     
-    private func insufficientPrivileges(_ req: Request, user: User) throws -> Future<Response> {
+    private func insufficientPrivileges(_ req: Request, user: User) throws -> EventLoopFuture<Response> {
         return try self.performAction(req, action: self.insufficientPrivilegesAction, for: user)
     }
     
-    private func performAction(_ req: Request, action: AuthenticationFailureAction, for user: User? = nil) throws -> Future<Response> {
+    private func performAction(_ req: Request, action: AuthenticationFailureAction, for user: User? = nil) throws -> EventLoopFuture<Response> {
         struct Context: Codable {
             let user: User?
         }
@@ -73,13 +72,14 @@ struct AuthenticationCheck: Middleware {
         
         switch action {
         case .redirect(let path):
-            if req.http.method == .GET, let session = try? req.session() {
-                session[redirectorSessionUrlKey] = req.http.urlString
+            if req.method == .GET {
+                req.session[redirectorSessionUrlKey] = req.url.string
             }
-            
-            return req.eventLoop.newSucceededFuture(result: req.redirect(to: path))
+
+            return req.eventLoop.makeSucceededFuture(req.redirect(to: path))
         case .accessProhibitedPage:
-            return try req.view().render("access-prohibited", ctx).flatMap(to: Response.self) { view in
+            return req.view.render("access-prohibited", ctx)
+                .flatMap { (view) -> Response in
                 return try view.encode(for: req)
             }
         }

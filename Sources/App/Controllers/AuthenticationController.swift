@@ -7,16 +7,15 @@
 
 import Foundation
 import Vapor
-import Fluent
+import FluentPostgresDriver
 
-import Authentication
 import PwnedPasswords
 
 let userRegisterErrorSessionKey = "com.ezekielelin.register.error"
 
 class AuthenticationController: RouteCollection {
-    func boot(router: Router) throws {
-        let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
+    func boot(routes: RoutesBuilder) throws {
+        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
 
         authSessionRoutes.get("login", use: login)
         authSessionRoutes.post(User.LoginRequest.self, at: "login", use: postLogin)
@@ -27,17 +26,16 @@ class AuthenticationController: RouteCollection {
         authSessionRoutes.get("logout", use: logout)
     }
     
-    func register(_ req: Request) throws -> Future<View> {
+    func register(_ req: Request) throws -> EventLoopFuture<View> {
         struct Context: Codable {
             var error: String?
         }
-        let session = try req.session()
-        let ctx = Context(error: session[userRegisterErrorSessionKey])
-        
+        let ctx = Context(error: req.session[userRegisterErrorSessionKey])
+
         return try req.view().render("auth/register", ctx)
     }
     
-    func postRegister(_ req: Request, data: User.RegisterRequest) throws -> Future<Response> {
+    func postRegister(_ req: Request, data: User.RegisterRequest) throws -> EventLoopFuture<Response> {
         let pwned = PwnedPasswords()
         return try pwned.test(password: data.password, with: req.client())
             .flatMap(to: Response.self) { breached in
@@ -70,32 +68,33 @@ class AuthenticationController: RouteCollection {
         }
     }
     
-    func login(_ req: Request) throws -> Future<View> {
-        return try req.view().render("auth/login")
+    func login(_ req: Request) throws -> EventLoopFuture<View> {
+        req.view.render("auth/login")
     }
     
-    func postLogin(_ req: Request, data: User.LoginRequest) throws -> Future<AnyResponse> {
-        return User.authenticate(username: data.email,
-                                 password: data.password,
-                                 using: BCryptDigest(),
-                                 on: req).map(to: AnyResponse.self) { user in
+    func postLogin(_ req: Request, data: User.LoginRequest) throws -> EventLoopFuture<AnyResponse> {
 
-            guard let user = user else {
-                return AnyResponse(try req.view().render("auth/login", ["error": "Invalid login"]))
-            }
+        User.authenticate(username: data.email,
+                          password: data.password,
+                          using: BCryptDigest(),
+                          on: req.db).map { user in
 
-            try req.authenticateSession(user)
-            
-            let session = try req.session()
-            let redirectTo = session[redirectorSessionUrlKey] ?? "/"
-            session[redirectorSessionUrlKey] = nil
-            
-            return AnyResponse(req.redirect(to: redirectTo))
+                            guard let user = user else {
+                                return AnyResponse(try req.view().render("auth/login", ["error": "Invalid login"]))
+                            }
+
+                            try req.authenticateSession(user)
+
+                            let session = try req.session()
+                            let redirectTo = session[redirectorSessionUrlKey] ?? "/"
+                            session[redirectorSessionUrlKey] = nil
+
+                            return AnyResponse(req.redirect(to: redirectTo))
         }
     }
 
     func logout(_ req: Request) throws -> Response {
-        try req.unauthenticateSession(User.self)
+        req.auth.logout(User.self)
         return req.redirect(to: "/")
     }
 }

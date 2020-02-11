@@ -7,10 +7,13 @@
 
 import Foundation
 import Vapor
-import FluentPostgreSQL
-import Authentication
+import Crypto
+import Fluent
+import FluentPostgresDriver
 
-struct User: Content {
+final class User: Model {
+    static let schema = "users"
+
     /// The database ID of the exhibit
     ///
     /// This field is managed by PostgreSQL and should
@@ -18,19 +21,25 @@ struct User: Content {
     var id: Int?
     
     /// Email address for the user
+    @Field(key: "email")
     var email: String
     
     /// The hashed user password
     ///
     /// This field should never be set to the unhashed password
+    @Field(key: "password_hashed")
     var password: String
     
     /// The user privileges role
+    @Field(key: "role")
     var role: UserRole
     
     /// Github account ID
+    @Field(key: "github_access_token")
     var githubAccessToken: String?
-    
+
+    init() {}
+
     init(email: String, hashedPassword: String, role: UserRole = .regular) {
         self.email = email
         self.password = hashedPassword
@@ -40,17 +49,17 @@ struct User: Content {
     
     init(email: String, plaintextPassword: String, role: UserRole = .regular) throws {
         self.email = email
-        self.password = try BCrypt.hash(plaintextPassword)
+        self.password = try Bcrypt.hash(plaintextPassword)
         self.role = role
         self.githubAccessToken = nil
     }
     
-    init(_ registrationData: RegisterRequest) throws {
+    convenience init(_ registrationData: RegisterRequest) throws {
         try self.init(email: registrationData.email, plaintextPassword: registrationData.password)
     }
     
-    func githubDetails(on container: Container) throws -> Future<GithubUser?> {
-        var githubFuture: Future<GithubUser?>
+    func githubDetails(on container: Container) throws -> EventLoopFuture<GithubUser?> {
+        var githubFuture: EventLoopFuture<GithubUser?>
         if let access_token = self.githubAccessToken {
             var headers = HTTPHeaders()
             headers.add(name: "Accepts", value: "application/json")
@@ -60,7 +69,7 @@ struct User: Content {
                 return try response.content.decode(GithubUser.self)
             }.map(to: GithubUser?.self) { return $0 }
         } else {
-            githubFuture = Future.map(on: container) { return nil }
+            githubFuture = EventLoopFuture.map(on: container) { return nil }
         }
         return githubFuture
     }
@@ -70,9 +79,9 @@ struct User: Content {
      *
      * This will not save the model, you must call .save() as well
      */
-    mutating func changePassword(current currentPassword: String, plaintextNew: String) throws -> Bool {
-        if try BCrypt.verify(currentPassword, created: self.password) {
-            self.password = try BCrypt.hash(plaintextNew)
+    func changePassword(current currentPassword: String, plaintextNew: String) throws -> Bool {
+        if try Bcrypt.verify(currentPassword, created: self.password) {
+            self.password = try Bcrypt.hash(plaintextNew)
             return true
         } else {
             return false
@@ -82,29 +91,40 @@ struct User: Content {
 
 //MARK:- Database
 
-extension User: PostgreSQLModel {}
-extension User: Migration {
-    static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
-        return Database.create(self, on: connection) { builder in
-            builder.field(for: \.id, isIdentifier: true)
-            builder.field(for: \.email)
-            builder.field(for: \.password)
-            builder.field(for: \.role)
-            builder.field(for: \.githubAccessToken)
-            
-            builder.unique(on: \.email)
-        }
+struct User_MigrationCreate: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema(User.schema)
+            .field("id", .int, .identifier(auto: true))
+            .field("email",  .string)
+            .field("password", .string)
+//            .field("role", .enum(UserRole.self))
+            .field("github_access_token", .string)
+            .unique(on: "email")
+            .create()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema(User.schema).delete()
     }
 }
 
 //MARK:- Authentication
 
-extension User: PasswordAuthenticatable {
-    static var usernameKey = \User.email
-    static var passwordKey = \User.password
+extension User: ModelUser {
+    static var usernameKey = \User.$email
+    static var passwordHashKey = \User.$password
+
+    func verify(password: String) throws -> Bool {
+        try Bcrypt.verify(password, created: self.password)
+    }
 }
 
-extension User: SessionAuthenticatable {}
+extension User: Authenticatable { }
+
+#warning("Disabled sessionauthenticable")
+//extension User: SessionAuthenticatable {
+//    typealias SessionID = <#type#>
+//}
 
 //MARK: Login and Registration objects
 

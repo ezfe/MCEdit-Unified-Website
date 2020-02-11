@@ -7,7 +7,7 @@
 
 import Foundation
 import Vapor
-import FluentPostgreSQL
+import FluentPostgresDriver
 
 class IndexController: RouteCollection {
     func boot(router: Router) throws {
@@ -19,7 +19,7 @@ class IndexController: RouteCollection {
         protectedRoutes.get("remove-comment-url", UUID.parameter, use: removeCommentURL)
     }
     
-    func index(_ req: Request) throws -> Future<View> {
+    func index(_ req: Request) throws -> EventLoopFuture<View> {
         let user = try req.authenticated(User.self)
         
         struct Context: Codable {
@@ -29,18 +29,18 @@ class IndexController: RouteCollection {
             let alerts: [Alert]
         }
         
-        let releasesFuture: Future<[Release]>
-        let latestReleaseFuture: Future<Release>
+        let releasesFuture: EventLoopFuture<[Release]>
+        let latestReleaseFuture: EventLoopFuture<Release>
 
         do {
             releasesFuture = try getReleases(on: req)
             latestReleaseFuture = try getLatestRelease(on: req)
         } catch let err {
             print(err)
-            return try req.view().render("about", ["error": err.localizedDescription])
+            return req.view.render("about", ["error": err.localizedDescription])
         }
         
-        let alertsFuture = Alert.query(on: req).filter(\Alert.isSitewideVisible == true).all()
+        let alertsFuture = Alert.query(on: req.db).filter(\Alert.isSitewideVisible == true).all()
 
         return releasesFuture.flatMap(to: [Release].self) { releases in
             return releases.map { release in
@@ -68,19 +68,19 @@ class IndexController: RouteCollection {
         }
     }
     
-    func setCommentURL(_ req: Request) throws -> Future<Response> {
+    func setCommentURL(_ req: Request) throws -> EventLoopFuture<Response> {
         let metadataID = try req.parameters.next(UUID.self)
         let url: String = try req.content.syncGet(at: "url")
         
         return try updateCommentURL(on: req, id: metadataID, with: url)
     }
     
-    func removeCommentURL(_ req: Request) throws -> Future<Response> {
+    func removeCommentURL(_ req: Request) throws -> EventLoopFuture<Response> {
         let metadataID = try req.parameters.next(UUID.self)
         return try updateCommentURL(on: req, id: metadataID, with: nil)
     }
 
-    private func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> Future<Response> {
+    private func updateCommentURL(on req: Request, id: UUID, with url: String?) throws -> EventLoopFuture<Response> {
         return ReleaseMetaData.query(on: req).filter(\.id == id).first().map(to: Response.self) { releaseMetadata in
             if var releaseMetadata = releaseMetadata {
                 print("Found metadata object")

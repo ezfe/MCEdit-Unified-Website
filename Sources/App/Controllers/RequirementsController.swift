@@ -9,11 +9,11 @@ import Foundation
 import Vapor
 
 class RequirementsController: RouteCollection {
-    func boot(router: Router) throws {
-        router.get(use: index)
+    func boot(routes: RoutesBuilder) throws {
+        routes.get(use: index)
     }
     
-    func index(_ req: Request) throws -> Future<View> {
-        return try req.view().render("requirements")
+    func index(_ req: Request) throws -> EventLoopFuture<View> {
+        return try req.view.render("requirements")
     }
 }

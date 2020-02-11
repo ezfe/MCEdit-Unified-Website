@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import FluentPostgreSQL
+import FluentPostgresDriver
 
-public enum UserRole: String, PostgreSQLEnum, PostgreSQLMigration, Comparable {
+public enum UserRole: String, Comparable, Codable {
     /// The user has no special access
     ///
     /// This should apply to all accounts created via public-facing portals

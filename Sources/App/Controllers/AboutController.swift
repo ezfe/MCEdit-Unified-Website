@@ -13,7 +13,7 @@ class AboutController: RouteCollection {
         router.get(use: index)
     }
     
-    func index(_ req: Request) throws -> Future<View> {
+    func index(_ req: Request) throws -> EventLoopFuture<View> {
         return try req.view().render("about")
     }
 }

@@ -7,66 +7,63 @@
 
 import Foundation
 import Vapor
-import Fluent
-import Authentication
+import FluentPostgresDriver
 
 class AlertPanelController: RouteCollection {
-    func boot(router: Router) throws {
-        let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
+    func boot(routes: RoutesBuilder) throws {
+        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
         let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck(level: .manager))
         
         protectedRoutes.get(use: index)
         protectedRoutes.get("add-alert", use: addAlert)
         protectedRoutes.post(Alert.self, at: "add-alert", use: postAddAlert)
-        protectedRoutes.get("remove-alert", Alert.parameter, use: removeAlert)
-        protectedRoutes.get("show-alert", Alert.parameter, use: showAlert)
-        protectedRoutes.get("hide-alert", Alert.parameter, use: hideAlert)
+        protectedRoutes.get("remove-alert", ":id", use: removeAlert)
+        protectedRoutes.get("show-alert", ":id", use: showAlert)
+        protectedRoutes.get("hide-alert", ":id", use: hideAlert)
     }
     
-    func index(_ req: Request) throws -> Future<View> {
+    func index(_ req: Request) throws -> EventLoopFuture<View> {
         struct Context: Codable {
             let alerts: [Alert]
         }
-        
-        return Alert.query(on: req).all().flatMap(to: View.self) { alerts in
-            return try req.view().render("alert_panel", Context(alerts: alerts))
+
+        return Alert.query(on: req.db).all().flatMap { alerts in
+            req.view.render("alert_panel", Context(alerts: alerts))
         }
     }
     
-    func addAlert(_ req: Request) throws -> Future<View> {
-        return try req.view().render("add_alert")
+    func addAlert(_ req: Request) throws -> EventLoopFuture<View> {
+        return req.view.render("add_alert")
     }
     
-    func postAddAlert(_ req: Request, alert: Alert) throws -> Future<Response> {
-        return alert.save(on: req).map(to: Response.self) { _ in
-            return req.redirect(to: "/alert-panel")
+    func postAddAlert(_ req: Request, alert: Alert) throws -> EventLoopFuture<Response> {
+        return alert.save(on: req.db).map { _ in
+            req.redirect(to: "/alert-panel")
         }
     }
     
-    func removeAlert(_ req: Request) throws -> Future<Response> {
-        let alert = try req.parameters.next(Alert.self)
-        return alert.delete(on: req).map(to: Response.self) { _ in
-            return req.redirect(to: "/alert-panel")
-        }
+    func removeAlert(_ req: Request) throws -> EventLoopFuture<Response> {
+        Alert.find(req.parameters.get("id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { $0.delete(on: req.db) }
+            .transform(to: req.redirect(to: "/alert-panel"))
     }
     
-    func showAlert(_ req: Request) throws -> Future<Response> {
-        return try req.parameters.next(Alert.self).flatMap(to: Alert.self) { alert in
-            var alert = alert
-            alert.isSitewideVisible = true
-            return alert.save(on: req)
-        }.map(to: Response.self) { _ in
-            return req.redirect(to: "/alert-panel")
-        }
+    func showAlert(_ req: Request) throws -> EventLoopFuture<Response> {
+        Alert.find(req.parameters.get("id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { (alert) -> EventLoopFuture<Void> in
+                alert.isSitewideVisible = true
+                return alert.save(on: req.db)
+            }.transform(to: req.redirect(to: "/alert-panel"))
     }
     
-    func hideAlert(_ req: Request) throws -> Future<Response> {
-        return try req.parameters.next(Alert.self).flatMap(to: Alert.self) { alert in
-            var alert = alert
-            alert.isSitewideVisible = false
-            return alert.save(on: req)
-        }.map(to: Response.self) { _ in
-            return req.redirect(to: "/alert-panel")
-        }
+    func hideAlert(_ req: Request) throws -> EventLoopFuture<Response> {
+        Alert.find(req.parameters.get("id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { (alert) -> EventLoopFuture<Void> in
+                alert.isSitewideVisible = false
+                return alert.save(on: req.db)
+            }.transform(to: req.redirect(to: "/alert-panel"))
     }
 }

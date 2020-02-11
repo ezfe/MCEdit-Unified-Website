@@ -7,18 +7,18 @@
 
 import Foundation
 import Vapor
-import Fluent
+import FluentPostgresDriver
 
 class ContributorController: RouteCollection {
-    func boot(router: Router) throws {
-        let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
+    func boot(routes: RoutesBuilder) throws {
+        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
         authSessionRoutes.get(use: index)
         
         let manager = authSessionRoutes.grouped(AuthenticationCheck())
         manager.post("update", UUID.parameter, use: update)
     }
     
-    func index(_ req: Request) throws -> Future<View> {
+    func index(_ req: Request) throws -> EventLoopFuture<View> {
         let user = try req.authenticated(User.self)
         
         struct ContributorContext: Encodable {
@@ -51,7 +51,7 @@ class ContributorController: RouteCollection {
         }
     }
     
-    func update(_ req: Request) throws -> Future<Response> {
+    func update(_ req: Request) throws -> EventLoopFuture<Response> {
         let user = try req.requireAuthenticated(User.self)
         
         let metadataID = try req.parameters.next(UUID.self)

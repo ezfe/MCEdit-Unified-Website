@@ -7,8 +7,7 @@
 
 import Foundation
 import Vapor
-import Fluent
-import FluentPostgreSQL
+import FluentPostgresDriver
 
 struct ReleaseMetaData: Content, PostgreSQLUUIDModel, Migration {
     var id: UUID?

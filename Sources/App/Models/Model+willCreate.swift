@@ -6,7 +6,7 @@
 //
 
 import Vapor
-import FluentPostgreSQL
+import FluentPostgresDriver
 
 extension PostgreSQLModel {
     /// Prevent model creations with the ID field filled
