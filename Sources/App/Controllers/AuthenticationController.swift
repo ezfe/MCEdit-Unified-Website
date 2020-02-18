@@ -37,24 +37,25 @@ class AuthenticationController: RouteCollection {
     
     func postRegister(_ req: Request, data: User.RegisterRequest) throws -> EventLoopFuture<Response> {
         let pwned = PwnedPasswords()
-        return try pwned.test(password: data.password, with: req.client())
-            .flatMap(to: Response.self) { breached in
-                
-                let session = try req.session()
+        return try pwned.test(password: data.password, with: req.client)
+            .flatMapThrowing { breached in
+
                 let success = req.redirect(to: "/")
                 let failure = req.redirect(to: "/auth/register")
                 
                 guard !breached else {
-                    session[userRegisterErrorSessionKey] = "That password is insecure and not permitted"
-                    return Future.map(on: req) { return failure }
+                    #warning("Re-implement")
+//                    req.session[userRegisterErrorSessionKey] = "That password is insecure and not permitted"
+                    return EventLoopFuture.map(on: req) { return failure }
                 }
                 
                 let user: User
                 do {
                     user = try User(data)
                 } catch let err {
-                    session[userRegisterErrorSessionKey] = err.localizedDescription
-                    return Future.map(on: req) { return failure }
+                    #warning("Re-implement")
+//                    req.session[userRegisterErrorSessionKey] = err.localizedDescription
+                    return EventLoopFuture.map(on: req) { return failure }
                 }
                 
                 return user.create(on: req).map(to: Response.self) { user in

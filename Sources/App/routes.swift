@@ -11,7 +11,8 @@ public func routes(_ app: Application) throws {
     try app.grouped("tutorial").register(collection: TutorialController())
     try app.grouped("requirements").register(collection: RequirementsController())
     try app.grouped("contributors").register(collection: ContributorController())
-    try app.grouped("auth").register(collection: AuthenticationController())
+    try app.grouped("auth").register(collection:
+        AuthenticationController())
     try app.grouped("user-panel").register(collection: UserPanelController())
     try app.grouped("alert-panel").register(collection: AlertPanelController())
 }

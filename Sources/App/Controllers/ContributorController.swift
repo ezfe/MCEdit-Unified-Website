@@ -11,7 +11,7 @@ import FluentPostgresDriver
 
 class ContributorController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
+        let loSessionRoutes = routes.grouped(User.authSessionsMiddleware())
         authSessionRoutes.get(use: index)
         
         let manager = authSessionRoutes.grouped(AuthenticationCheck())
