@@ -36,12 +36,15 @@ func getLatestRelease(on req: Request) throws -> Future<Release> {
 }
 
 func getContributors(on req: Request, as user: User?) throws -> Future<[Contributor]> {
-    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors?access_token=\(getServerAccessToken(env: req.environment))"
-    
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/contributors"
+
     let userGithub = try user?.githubDetails(on: req) ?? Future.map(on: req) { return nil}
     
+    let token = try getServerAccessToken(env: req.environment)
+    let headers = HTTPHeaders([("Authorization", "token \(token)")])
+
     let client = try req.make(Client.self)
-    return client.get(url).flatMap(to: [GithubContributor].self) { response in
+    return client.get(url, headers: headers).flatMap(to: [GithubContributor].self) { response in
         return try response.content.decode([GithubContributor].self)
     }.flatMap(to: [Contributor].self) { ghContributors in
         return userGithub.map(to: [Contributor].self) { userGithub in
@@ -57,10 +60,13 @@ func getContributors(on req: Request, as user: User?) throws -> Future<[Contribu
 }
 
 func getReleases(on req: Request) throws -> Future<[Release]> {
-    let url = try "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3&access_token=\(getServerAccessToken(env: req.environment))"
-    
+    let url = "https://api.github.com/repos/Podshot/MCEdit-Unified/releases?per_page=3"
+
+    let token = try getServerAccessToken(env: req.environment)
+    let headers = HTTPHeaders([("Authorization", "token \(token)")])
+
     let client = try req.make(Client.self)
-    return client.get(url).flatMap(to: [GithubRelease].self) { response in
+    return client.get(url, headers: headers).flatMap(to: [GithubRelease].self) { response in
         return try response.content.decode([GithubRelease].self)
     }.map(to: [Release].self) { ghReleases in
         return ghReleases.compactMap { Release(from: $0) }

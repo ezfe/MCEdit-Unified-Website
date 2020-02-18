@@ -54,8 +54,9 @@ struct User: Content {
         if let access_token = self.githubAccessToken {
             var headers = HTTPHeaders()
             headers.add(name: "Accepts", value: "application/json")
-            
-            githubFuture = try container.client().get("https://api.github.com/user?access_token=\(access_token)", headers: headers).flatMap(to: GithubUser.self) { response in
+            headers.add(name: "Authorization", value: "token \(access_token)")
+
+            githubFuture = try container.client().get("https://api.github.com/user", headers: headers).flatMap(to: GithubUser.self) { response in
                 
                 return try response.content.decode(GithubUser.self)
             }.map(to: GithubUser?.self) { return $0 }
