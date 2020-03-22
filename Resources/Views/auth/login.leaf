@@ -1,33 +1,41 @@
-#set("title") { MCEdit Unified – Login }
 
-#set("header-contents") {}
+#extend("master"):
+    #export("title"):
+        MCEdit Unified – Login1
+    #endexport
 
-#set("body-contents") {
-    #if(error) {
-        <div class="alert alert-danger" role="alert">
-            #(error)
-        </div>
-    }
+    #export("header-contents"):
+    #endexport
 
-    <form method="post">
-        <div class="form-group">
-            <label for="email-input">Email</label>
-            <input type="text" autocomplete="username" name="email" class="form-control" id="email-input"/>
-        </div>
+    #export("body-contents"):
+        #if(error):
+            <div class="alert alert-danger" role="alert">
+                #(error)
+            </div>
+        #endif
 
-        <div class="form-group">
-            <label for="password-input">Password</label>
-            <input type="password" autocomplete="password" name="password" class="form-control" id="password-input"/>
-        </div>
+        <form method="post">
+            <div class="form-group">
+                <label for="email-input">Email</label>
+                <input type="text" autocomplete="username" name="email" class="form-control" id="email-input"/>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Log In</button>
+            <div class="form-group">
+                <label for="password-input">Password</label>
+                <input type="password" autocomplete="password" name="password" class="form-control" id="password-input"/>
+            </div>
 
-        <br><br>
-        <span>Don't have an account?</span><br>
+            <button type="submit" class="btn btn-primary">Log In</button>
 
-        <a href="/auth/register" class="btn btn-info">Register</a>
-    </form>
+            <br><br>
+            <span>Don't have an account?</span><br>
 
-}
-#set("nav_page") {login}
-#embed("master")
+            <a href="/auth/register" class="btn btn-info">Register</a>
+        </form>
+
+    #endexport
+
+    #export("nav_page"):
+        login
+    #endexport
+#endextend

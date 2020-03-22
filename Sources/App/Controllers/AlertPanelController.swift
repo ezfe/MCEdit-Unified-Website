@@ -11,12 +11,11 @@ import FluentPostgresDriver
 
 class AlertPanelController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
-        let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck(level: .manager))
+        let protectedRoutes = routes.grouped(AuthenticationCheck(level: .manager))
         
         protectedRoutes.get(use: index)
         protectedRoutes.get("add-alert", use: addAlert)
-        protectedRoutes.post(Alert.self, at: "add-alert", use: postAddAlert)
+        protectedRoutes.post("add-alert", use: postAddAlert)
         protectedRoutes.get("remove-alert", ":id", use: removeAlert)
         protectedRoutes.get("show-alert", ":id", use: showAlert)
         protectedRoutes.get("hide-alert", ":id", use: hideAlert)
@@ -36,7 +35,8 @@ class AlertPanelController: RouteCollection {
         return req.view.render("add_alert")
     }
     
-    func postAddAlert(_ req: Request, alert: Alert) throws -> EventLoopFuture<Response> {
+    func postAddAlert(_ req: Request) throws -> EventLoopFuture<Response> {
+        let alert = try req.content.decode(Alert.self)
         return alert.save(on: req.db).map { _ in
             req.redirect(to: "/alert-panel")
         }

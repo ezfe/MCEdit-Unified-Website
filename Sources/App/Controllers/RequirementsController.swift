@@ -14,6 +14,6 @@ class RequirementsController: RouteCollection {
     }
     
     func index(_ req: Request) throws -> EventLoopFuture<View> {
-        return try req.view.render("requirements")
+        return req.view.render("requirements")
     }
 }

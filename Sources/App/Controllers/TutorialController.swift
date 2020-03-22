@@ -14,6 +14,6 @@ class TutorialController: RouteCollection {
     }
     
     func index(_ req: Request) throws -> EventLoopFuture<View> {
-        return try req.view.render("tutorial")
+        return req.view.render("tutorial")
     }
 }

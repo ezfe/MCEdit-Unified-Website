@@ -15,56 +15,49 @@ let userRegisterErrorSessionKey = "com.ezekielelin.register.error"
 
 class AuthenticationController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
-
-        authSessionRoutes.get("login", use: login)
-        authSessionRoutes.post(User.LoginRequest.self, at: "login", use: postLogin)
+        routes.get("login", use: login)
+        routes.post("login", use: postLogin)
         
-        authSessionRoutes.get("register", use: register)
-        authSessionRoutes.post(User.RegisterRequest.self, at: "register", use: postRegister)
+        routes.get("register", use: register)
+        routes.post("register", use: postRegister)
         
-        authSessionRoutes.get("logout", use: logout)
+        routes.get("logout", use: logout)
     }
     
     func register(_ req: Request) throws -> EventLoopFuture<View> {
         struct Context: Codable {
             var error: String?
         }
-        let ctx = Context(error: req.session[userRegisterErrorSessionKey])
+        let ctx = Context(error: req.session.data[userRegisterErrorSessionKey])
 
-        return try req.view().render("auth/register", ctx)
+        return req.view.render("auth/register", ctx)
     }
     
-    func postRegister(_ req: Request, data: User.RegisterRequest) throws -> EventLoopFuture<Response> {
-        let pwned = PwnedPasswords()
-        return try pwned.test(password: data.password, with: req.client)
-            .flatMapThrowing { breached in
+    func postRegister(_ req: Request) throws -> EventLoopFuture<Response> {
+        let data = try req.content.decode(User.RegisterRequest.self)
+        
+        return try req.pwnedPasswords.test(password: data.password).flatMap { breached in
 
                 let success = req.redirect(to: "/")
                 let failure = req.redirect(to: "/auth/register")
                 
                 guard !breached else {
-                    #warning("Re-implement")
-//                    req.session[userRegisterErrorSessionKey] = "That password is insecure and not permitted"
-                    return EventLoopFuture.map(on: req) { return failure }
+                    req.session.data[userRegisterErrorSessionKey] = "That password is insecure and not permitted"
+                    return req.eventLoop.makeSucceededFuture(failure)
                 }
                 
                 let user: User
                 do {
                     user = try User(data)
                 } catch let err {
-                    #warning("Re-implement")
-//                    req.session[userRegisterErrorSessionKey] = err.localizedDescription
-                    return EventLoopFuture.map(on: req) { return failure }
+                    req.session.data[userRegisterErrorSessionKey] = err.localizedDescription
+                    return req.eventLoop.makeSucceededFuture(failure)
                 }
-                
-                return user.create(on: req).map(to: Response.self) { user in
-                    try req.authenticateSession(user)
-                    session[userRegisterErrorSessionKey] = nil
+
+                return user.create(on: req.db).map { _ -> Response in
+                    req.auth.login(user)
+                    req.session.data[userRegisterErrorSessionKey] = nil
                     return success
-                }.mapIfError { error -> Response in
-                    session[userRegisterErrorSessionKey] = error.localizedDescription
-                    return failure
                 }
         }
     }
@@ -73,25 +66,26 @@ class AuthenticationController: RouteCollection {
         req.view.render("auth/login")
     }
     
-    func postLogin(_ req: Request, data: User.LoginRequest) throws -> EventLoopFuture<AnyResponse> {
+    func postLogin(_ req: Request) throws -> EventLoopFuture<AnyResponse> {
+        let data = try req.content.decode(User.LoginRequest.self)
 
-        User.authenticate(username: data.email,
-                          password: data.password,
-                          using: BCryptDigest(),
-                          on: req.db).map { user in
+        return User.query(on: req.db)
+            .filter(\.$email == data.email)
+            .first()
+            .map { user -> AnyResponse in
+                guard let user = user else {
+                    return AnyResponse(
+                        req.view.render("auth/login",["error": "Invalid login"])
+                    )
+                }
 
-                            guard let user = user else {
-                                return AnyResponse(try req.view().render("auth/login", ["error": "Invalid login"]))
-                            }
+                req.auth.login(user)
 
-                            try req.authenticateSession(user)
+                let redirectTo = req.session.data[redirectorSessionUrlKey] ?? "/"
+                req.session.data[redirectorSessionUrlKey] = nil
 
-                            let session = try req.session()
-                            let redirectTo = session[redirectorSessionUrlKey] ?? "/"
-                            session[redirectorSessionUrlKey] = nil
-
-                            return AnyResponse(req.redirect(to: redirectTo))
-        }
+                return AnyResponse(req.redirect(to: redirectTo))
+            }
     }
 
     func logout(_ req: Request) throws -> Response {

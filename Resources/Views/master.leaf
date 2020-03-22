@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>#get(title)</title>
+	<title>#import("title")</title>
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -32,7 +32,57 @@
 	#get(header-contents)
 </head>
 <body>
-	#embed("navbar")
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <span class="navbar-brand mb-0 h1">MCEdit Unified</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <!-- Home -->
+                <a class="nav-item nav-link #if(nav_page=="home") {active}" href="/">
+                    <i class="fa fa-home"></i>
+                    #if(nav_page=="home"):
+                        <span class="sr-only">(current)</span>
+                    #endif
+                </a>
+                <!-- About -->
+                <a class="nav-item nav-link #if(nav_page=="about") {active}" href="/about">
+                    About
+                    #if(nav_page=="about") {<span class="sr-only">(current)</span>}
+                </a>
+                <!-- Tutorial -->
+                <a class="nav-item nav-link #if(nav_page=="tutorial") {active}" href="/tutorial">
+                    Tutorial
+                    #if(nav_page=="tutorial") {<span class="sr-only">(current)</span>}
+                </a>
+                <!-- System Requirements -->
+                <a class="nav-item nav-link #if(nav_page=="requirements") {active}" href="/requirements">
+                    System Requirements
+                    #if(nav_page=="requirements") {<span class="sr-only">(current)</span>}
+                </a>
+                <!-- Contributors -->
+                <a class="nav-item nav-link #if(nav_page=="contributors") {active}" href="/contributors">
+                    <i class="fa fa-users"></i> Contributors
+                    #if(nav_page=="contributors") {<span class="sr-only">(current)</span>}
+                </a>
+                <!-- Documentation -->
+                <a class="nav-item nav-link" href="/docs/index.html" target="_">
+                    <i class="fa fa-book"></i> Documentation
+                </a>
+                <!-- Discord -->
+                <a class="nav-item nav-link" href="https://discord.gg/BTm6jnf">
+                    <i class="fab fa-discord"></i> Discord Server
+                </a>
+                <a class="nav-item nav-link" href="https://www.reddit.com/r/MCEdit/">
+                    <i class="fab fa-reddit"></i>
+                </a>
+                <a class="nav-item nav-link" href="https://github.com/Podshot/MCEdit-Unified/">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
 
 	<div class="container" id="primary-container">
 		<!-- Looks for outdated IE browsers -->
@@ -41,7 +91,7 @@
 		<[endif]
 		-->
 
-		#get(body-contents)
+		#import("body-contents")
 
 		<hr>
 		<div id="footer">

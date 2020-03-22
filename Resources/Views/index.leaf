@@ -1,208 +1,211 @@
-#set("title") { MCEdit Unified }
-
-#set("header-contents") {
-	<script src="js/index_scripts.js"></script>
-	<style>
-		@media (min-width: 992px) \{
-			.releasenote-title \{
-				text-align: right;
-			\}
-		\}
-		@media (max-width: 991px) \{
-			.releasenote-title \{
-				text-align: center;
-			\}
-		\}
-	</style>
-}
-
-#set("body-contents") {
-	#for(alert in alerts) {
-		<div class="row site-alert" alertid="#(alert.id)" class="row">
-			<div class="col">
-				<div class="alert alert-#(alert.alertStyle)" role="alert">
-					#if(alert.userMayHide) {
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="localStorage.setItem('dismissed-alert-#(alert.id)','yes');">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					}
-					<h4 class="alert-heading">#(alert.title)</h4>
-					<p>
-						#(alert.body)
-					</p>
-					<hr>
-					<a href="#(alert.learnMoreURL)" target="_" class="btn btn-#(alert.buttonStyle)"><i class="#(alert.learnMoreIcon)"></i> #(alert.learnMoreText)</a>
-				</div>
-			</div>
-		</div>
-	}
-
-    <div class="row">
-        <div class="col">
-            <h3 style="text-align: center;">
-                MCEdit Unified for Java 1.12 and Bedrock
-            </h3>
-        </div>
-    </div>
-
-	<div class="row" id="center_jumbo_row">
-		<div class="col">
-			<div class="jumbotron" style="text-align:center; padding-bottom: 0.25rem;" id="downloads">
-				<div class="row">
-					<div class="col-md" id="OSX-downloads-toplevel">
-						<span>
-							<i class="fab fa-apple fa-5x"></i>
-							<br><br><span style="font-size:16pt">macOS</span><br><br>
-						</span>
-						<span id="OSX-downloads">
-							<a class="dl btn btn-primary" href="#(latestRelease.mac.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a><br><br>
-						</span>
-					</div>
-					<div class="col-md" id="Win-downloads-toplevel">
-						<span>
-							<i class="fab fa-windows fa-5x"></i>
-							<br><br><span style="font-size:16pt">Windows</span><br><br>
-						</span>
-						<span id="Win-downloads">
-							<a class="dl btn btn-primary" href="#(latestRelease.win32.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version  #(latestRelease.version) 32bit</a>
-							<br><br>
-							<a class="dl btn btn-primary" href="#(latestRelease.win64.browser_download_url)"><i class="fa fa-cloud-download-alt"></i> Version  #(latestRelease.version) 64bit</a>
-						</span>
-					</div>
-					<div class="col-md" id="Lin-downloads-toplevel">
-						<span>
-							<i class="fab fa-linux fa-5x"></i>
-							<br><br><span style="font-size:16pt">Linux <span class="label label-warning">Beta</span></span><br><br>
-						</span>
-						<span id="Lin-downloads">
-							<a class="dl btn btn-primary" href="#(latestRelease.linux.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a>
-							<br><br>
-							<a class="dl btn btn-primary" href="https://github.com/Podshot/MCEdit-Unified/releases"><i class="fa fa-code" ></i> Run From Source</a><br><br>
-						</span>
-					</div>
-				</div>
-
-				<!-- Row to reveal all platforms on md/lg -->
-				<div class="row override-platform-specific-downloads-container">
-					<div class="col-md-12" style="text-align: right;">
-						<i class="fa fa-star"></i> Click <a href="#" class="override-platform-specific-downloads">here</a> to view all versions
-					</div>
-				</div>
-
-				<!-- Row to see beta -->
-				<div class="row hidden-versions">
-					<div class="col-md-6 col-sm-12" style="text-align: left;">
-						<i class="fa fa-star"></i> Click <a href="https://github.com/Podshot/MCEdit-Unified-Preview/releases">here</a> for test releases (Windows)
-					</div>
-					<div class="col-md-6 col-sm-12" style="text-align: right;">
-						<i class="fa fa-history"></i> Pre-Anvil versions can be found at <a href="https://github.com/Khroki/mcedit-old/releases?after=0.1.6build315">this page.</a>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div>
-			<!-- changelog -->
-
-			#for(release in releases) {
-				<div class="row releasenote">
-					<div class="col-md-2 releasenote-title">
-						<div style="padding-right:10px;">
-							<div class="row">
-								<div class="col">
-									<h2 style="display: inline;">
-										<a href="#(release.htmlURL)">#(release.version)</a>
-									</h2>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<span class="badge badge-dark">#(release.totalDownloadCount) downloads</span>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<a href="#(release.mac.browser_download_url)" class="btn btn-sm btn-primary btn-block">	<i class="fab fa-apple"></i> macOS
-									</a>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<a href="#(release.linux.browser_download_url)" class="btn btn-sm btn-primary btn-block">
-										<i class="fab fa-linux"></i> Linux
-									</a>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col">
-									<div class="dropdown">
-										<button class="btn btn-sm btn-primary btn-block dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<i class="fab fa-windows"></i> Windows
-										</button>
-										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-											<a class="dropdown-item" href="#(release.win64.browser_download_url)">64 bit</a>
-											<a class="dropdown-item" href="#(release.win32.browser_download_url)">32 bit</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							#if(release.metadata.commentURL) {
-								<div class="row">
-									<div class="col">
-										Comment <a href="#(release.metadata.commentURL)">Here</a>
-									</div>
-								</div>
-							}
-							#if(release.prerelease) {
-								<div class="row">
-									<div class="col">
-										Pre-release
-									</div>
-								</div>
-							}
-							<div class="row">
-								<div class="col">
-									#date(release.publishedAt, "MMM d, yyyy")
-								</div>
-							</div>
-
-							#if(authenticated) {
-								<div class="row">
-									<div class="col">
-										<form action="/set-comment-url/#(release.metadata.id)" method="post">
-											<input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url" value="#(release.metadata.commentURL)"/>
-											<button class="btn btn-info btn-block" type="submit">#if(release.metadata.commentURL){Update}else{Set}&nbsp;URL</button>
-										</form>
-									</div>
-								</div>
-
-								#if(release.metadata.commentURL) {
-									<div class="row">
-										<div class="col">
-											<form action="/remove-comment-url/#(release.metadata.id)" method="post">
-												<button style="margin-top: 5px;" class="btn btn-danger btn-block" type="submit">Remove URL</button>
-											</form>
-										</div>
-									</div>
-								}
-							}
-						</div>
-					</div>
-					<div class="col-md-10">
-						<p>#get(release.releaseNotes)</p>
-					</div>
-				</div>
-				#if(!isLast) {
-					<hr/>
-				}
-			}
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-sm" style="text-align:center;">
-			<a href="https://github.com/Podshot/MCEdit-Unified/releases" class="btn btn-dark">More Releases <i class="fab fa-github"></i></a>
-		</div>
-	</div>
-}
-
-#set("nav_page") {home}
 #embed("master")
+    #export("title")
+        MCEdit Unified
+    #endexport
+
+    #set("header-contents"):
+        <script src="js/index_scripts.js"></script>
+        <style>
+            @media (min-width: 992px) \{
+                .releasenote-title \{
+                    text-align: right;
+                \}
+            \}
+            @media (max-width: 991px) \{
+                .releasenote-title \{
+                    text-align: center;
+                \}
+            \}
+        </style>
+
+    #set("body-contents"):
+        #for(alert in alerts) {
+            <div class="row site-alert" alertid="#(alert.id)" class="row">
+                <div class="col">
+                    <div class="alert alert-#(alert.alertStyle)" role="alert">
+                        #if(alert.userMayHide) {
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="localStorage.setItem('dismissed-alert-#(alert.id)','yes');">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        }
+                        <h4 class="alert-heading">#(alert.title)</h4>
+                        <p>
+                            #(alert.body)
+                        </p>
+                        <hr>
+                        <a href="#(alert.learnMoreURL)" target="_" class="btn btn-#(alert.buttonStyle)"><i class="#(alert.learnMoreIcon)"></i> #(alert.learnMoreText)</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col">
+                <h3 style="text-align: center;">
+                    MCEdit Unified for Java 1.12 and Bedrock
+                </h3>
+            </div>
+        </div>
+
+        <div class="row" id="center_jumbo_row">
+            <div class="col">
+                <div class="jumbotron" style="text-align:center; padding-bottom: 0.25rem;" id="downloads">
+                    <div class="row">
+                        <div class="col-md" id="OSX-downloads-toplevel">
+                            <span>
+                                <i class="fab fa-apple fa-5x"></i>
+                                <br><br><span style="font-size:16pt">macOS</span><br><br>
+                            </span>
+                            <span id="OSX-downloads">
+                                <a class="dl btn btn-primary" href="#(latestRelease.mac.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a><br><br>
+                            </span>
+                        </div>
+                        <div class="col-md" id="Win-downloads-toplevel">
+                            <span>
+                                <i class="fab fa-windows fa-5x"></i>
+                                <br><br><span style="font-size:16pt">Windows</span><br><br>
+                            </span>
+                            <span id="Win-downloads">
+                                <a class="dl btn btn-primary" href="#(latestRelease.win32.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version  #(latestRelease.version) 32bit</a>
+                                <br><br>
+                                <a class="dl btn btn-primary" href="#(latestRelease.win64.browser_download_url)"><i class="fa fa-cloud-download-alt"></i> Version  #(latestRelease.version) 64bit</a>
+                            </span>
+                        </div>
+                        <div class="col-md" id="Lin-downloads-toplevel">
+                            <span>
+                                <i class="fab fa-linux fa-5x"></i>
+                                <br><br><span style="font-size:16pt">Linux <span class="label label-warning">Beta</span></span><br><br>
+                            </span>
+                            <span id="Lin-downloads">
+                                <a class="dl btn btn-primary" href="#(latestRelease.linux.browser_download_url)"><i class="fa fa-cloud-download-alt" ></i> Version #(latestRelease.version)</a>
+                                <br><br>
+                                <a class="dl btn btn-primary" href="https://github.com/Podshot/MCEdit-Unified/releases"><i class="fa fa-code" ></i> Run From Source</a><br><br>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Row to reveal all platforms on md/lg -->
+                    <div class="row override-platform-specific-downloads-container">
+                        <div class="col-md-12" style="text-align: right;">
+                            <i class="fa fa-star"></i> Click <a href="#" class="override-platform-specific-downloads">here</a> to view all versions
+                        </div>
+                    </div>
+
+                    <!-- Row to see beta -->
+                    <div class="row hidden-versions">
+                        <div class="col-md-6 col-sm-12" style="text-align: left;">
+                            <i class="fa fa-star"></i> Click <a href="https://github.com/Podshot/MCEdit-Unified-Preview/releases">here</a> for test releases (Windows)
+                        </div>
+                        <div class="col-md-6 col-sm-12" style="text-align: right;">
+                            <i class="fa fa-history"></i> Pre-Anvil versions can be found at <a href="https://github.com/Khroki/mcedit-old/releases?after=0.1.6build315">this page.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <!-- changelog -->
+
+                #for(release in releases) {
+                    <div class="row releasenote">
+                        <div class="col-md-2 releasenote-title">
+                            <div style="padding-right:10px;">
+                                <div class="row">
+                                    <div class="col">
+                                        <h2 style="display: inline;">
+                                            <a href="#(release.htmlURL)">#(release.version)</a>
+                                        </h2>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <span class="badge badge-dark">#(release.totalDownloadCount) downloads</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <a href="#(release.mac.browser_download_url)" class="btn btn-sm btn-primary btn-block">	<i class="fab fa-apple"></i> macOS
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <a href="#(release.linux.browser_download_url)" class="btn btn-sm btn-primary btn-block">
+                                            <i class="fab fa-linux"></i> Linux
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-primary btn-block dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fab fa-windows"></i> Windows
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="#(release.win64.browser_download_url)">64 bit</a>
+                                                <a class="dropdown-item" href="#(release.win32.browser_download_url)">32 bit</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                #if(release.metadata.commentURL) {
+                                    <div class="row">
+                                        <div class="col">
+                                            Comment <a href="#(release.metadata.commentURL)">Here</a>
+                                        </div>
+                                    </div>
+                                }
+                                #if(release.prerelease) {
+                                    <div class="row">
+                                        <div class="col">
+                                            Pre-release
+                                        </div>
+                                    </div>
+                                }
+                                <div class="row">
+                                    <div class="col">
+                                        #date(release.publishedAt, "MMM d, yyyy")
+                                    </div>
+                                </div>
+
+                                #if(authenticated) {
+                                    <div class="row">
+                                        <div class="col">
+                                            <form action="/set-comment-url/#(release.metadata.id)" method="post">
+                                                <input style="margin-bottom: 5px; margin-top: 5px;" class="form-control" type="text" name="url" value="#(release.metadata.commentURL)"/>
+                                                <button class="btn btn-info btn-block" type="submit">#if(release.metadata.commentURL){Update}else{Set}&nbsp;URL</button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    #if(release.metadata.commentURL) {
+                                        <div class="row">
+                                            <div class="col">
+                                                <form action="/remove-comment-url/#(release.metadata.id)" method="post">
+                                                    <button style="margin-top: 5px;" class="btn btn-danger btn-block" type="submit">Remove URL</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <p>#get(release.releaseNotes)</p>
+                        </div>
+                    </div>
+                    #if(!isLast) {
+                        <hr/>
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm" style="text-align:center;">
+                <a href="https://github.com/Podshot/MCEdit-Unified/releases" class="btn btn-dark">More Releases <i class="fab fa-github"></i></a>
+            </div>
+        </div>
+
+    #export("nav_page")
+        home
+    #endexport
+#endextend

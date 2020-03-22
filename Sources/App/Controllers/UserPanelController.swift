@@ -11,8 +11,7 @@ import FluentPostgresDriver
 
 class UserPanelController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let authSessionRoutes = routes.grouped(User.authSessionsMiddleware())
-        let protectedRoutes = authSessionRoutes.grouped(AuthenticationCheck())
+        let protectedRoutes = routes.grouped(AuthenticationCheck())
         
         protectedRoutes.get(use: index)
         protectedRoutes.get("remove-github", use: removeGithub)
@@ -20,7 +19,7 @@ class UserPanelController: RouteCollection {
         protectedRoutes.get("connect-github-callback", use: connectGithubCallback)
         
         protectedRoutes.get("change-password", use: changePassword)
-        protectedRoutes.post(User.ChangePasswordRequest.self, at: "change-password", use: changePasswordPost)
+        protectedRoutes.post("change-password", use: changePasswordPost)
     }
     
     func index(_ req: Request) throws -> EventLoopFuture<AnyResponse> {
@@ -30,41 +29,41 @@ class UserPanelController: RouteCollection {
             let githubUsername: String?
         }
 
-        var user = try req.requireAuthenticated(User.self)
+        let user = try req.auth.require(User.self)
         let authenticatedUser = try user.createPublicView()
         
-        return try user.githubDetails(on: req).flatMap(to: AnyResponse.self) { githubResponse in
+        return user.githubDetails(on: req).flatMap { githubResponse in
             
             if let githubLogin = githubResponse?.login,
                 user.role == .regular,
                 ["ezfe", "Podshot", "Khroki", "TrazLander", "naor2013"].contains(githubLogin) {
                 
                 user.role = .manager
-                return user.save(on: req).map(to: AnyResponse.self) { _ in
+                return user.save(on: req.db).map { _ in
                     return AnyResponse(req.redirect(to: "/user-panel"))
                 }
             }
             
             let ctx = UserContext(user: authenticatedUser, githubUsername: githubResponse?.login)
-            
-            return Future.map(on: req) {
-                return try AnyResponse(req.view().render("user-panel/index", ctx))
-            }
+
+            return req.eventLoop.makeSucceededFuture(
+                AnyResponse(req.view.render("user-panel/index", ctx))
+            )
         }
     }
     
     func removeGithub(_ req: Request) throws -> EventLoopFuture<Response> {
-        var user = try req.requireAuthenticated(User.self)
+        let user = try req.auth.require(User.self)
         user.githubAccessToken = nil
         user.role = .regular
-        return user.save(on: req).map(to: Response.self) { _ in
+        return user.save(on: req.db).map { _ in
             return req.redirect(to: "/user-panel")
         }
     }
     
     func connectGithub(_ req: Request) throws -> Response {
         let stateString = "\(Int.random(in: 100_000...999_999))"
-        req.session["github_oauth_state"] = stateString
+        req.session.data["github_oauth_state"] = stateString
         
         let clientIdValue = try getClientID(env: req.application.environment)
         
@@ -87,8 +86,8 @@ class UserPanelController: RouteCollection {
         let code: String = try req.query.get(at: "code")
         let state: String = try req.query.get(at: "state")
 
-        if state != req.session["github_oauth_state"] {
-            print("Expected \(String(describing: req.session["github_oauth_state"])) but got \(state)")
+        if state != req.session.data["github_oauth_state"] {
+            print("Expected \(String(describing: req.session.data["github_oauth_state"])) but got \(state)")
             throw Abort(.forbidden)
         }
         
@@ -109,21 +108,21 @@ class UserPanelController: RouteCollection {
                                                           client_secret: clientSecret,
                                                           code: code,
                                                           state: state)
-        
-        var headers = HTTPHeaders([
+
+        let uri = URI(string: "https://github.com/login/oauth/access_token")
+        let headers = HTTPHeaders([
             ("Accepts", "application/json")
         ])
 
-        return req.client.post("https://github.com/login/oauth/access_token",
-                               headers: headers,
-                               beforeSend: { $0.content.encode(requestContent) })
+        return req.client
+            .post(uri, headers: headers, beforeSend: { try $0.content.encode(requestContent) })
             .flatMapThrowing { response in
                 try response.content.decode(GithubAccessTokenResponse.self)
-            }.flatMapThrowing { response in
-                var user = try req.requireAuthenticated(User.self)
+            }.flatMapThrowing { response -> EventLoopFuture<Void> in
+                let user = try req.auth.require(User.self)
                 user.githubAccessToken = response.access_token
-                return user.save(on: req)
-            }.map { user -> Response in
+                return user.save(on: req.db)
+            }.map { _ -> Response in
                 req.redirect(to: "/user-panel")
             }
     }
@@ -132,19 +131,21 @@ class UserPanelController: RouteCollection {
         req.view.render("user-panel/change-password")
     }
     
-    func changePasswordPost(_ req: Request,
-                            pwRequest: User.ChangePasswordRequest) throws -> EventLoopFuture<AnyResponse> {
+    func changePasswordPost(_ req: Request) throws -> EventLoopFuture<AnyResponse> {
+
+        let pwRequest = try req.content.decode(User.ChangePasswordRequest.self)
+        let user = try req.auth.require(User.self)
         
-        var user = try req.requireAuthenticated(User.self)
-        
-        if try user.changePassword(current: pwRequest.currentPassword, plaintextNew: pwRequest.newPassword) {
-            return user.save(on: req).map(to: AnyResponse.self) { _ in
+        if try user.changePassword(current: pwRequest.currentPassword,
+                                   plaintextNew: pwRequest.newPassword) {
+
+            return user.save(on: req.db).map { _ in
                 return AnyResponse(req.redirect(to: "/user-panel"))
             }
         } else {
-            return EventLoopFuture.map(on: req) {
-                try AnyResponse(req.view().render("user-panel/change-password"))
-            }
+            return req.eventLoop.makeSucceededFuture(
+                AnyResponse(req.view.render("user-panel/change-password"))
+            )
         }
     }
 }

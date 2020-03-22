@@ -5,14 +5,32 @@ import FluentPostgresDriver
 import Redis
 
 /// Called before your application initializes.
-func configure(_ app: Application) throws {
+public func configure(_ app: Application) throws {
+    app.views.use(.leaf)
+    app.leaf.cache.isEnabled = false
+
+    let sessions = SessionsMiddleware(session: app.sessions.driver)
+    app.middleware.use(sessions)
+
+    //MARK:- PostgreSQL
+    let postgresConfig: PostgresConfiguration
+    if let _databaseURL = Environment.get("DATABASE_URL"),
+        let databaseURL = URL(string: _databaseURL),
+        let config = PostgresConfiguration(url: databaseURL) {
+
+        postgresConfig = config
+    } else {
+        postgresConfig = PostgresConfiguration(hostname: "localhost",
+                                               port: 5432,
+                                               username: "ezekielelin",
+                                               password: "",
+                                               database: "mcedit")
+    }
+
+    app.databases.use(.postgres(configuration: postgresConfig), as: .psql)
+
     try routes(app)
 }
-//    //MARK:- Register services
-//    let router = EngineRouter.default()
-//    try routes(router)
-//    services.register(router, as: Router.self)
-//
 //    try services.register(LeafProvider())
 //    try services.register(FluentPostgreSQLProvider())
 //    try services.register(RedisProvider())
@@ -28,17 +46,6 @@ func configure(_ app: Application) throws {
 //
 //    //MARK:- Database
 //    var dbConfig = DatabasesConfig()
-//
-//    //MARK:- PostgreSQL
-//    let postgresConfig: PostgreSQLDatabaseConfig
-//    if let databaseUrl = Environment.get("DATABASE_URL") {
-//        postgresConfig = PostgreSQLDatabaseConfig(url: databaseUrl, transport: .unverifiedTLS)!
-//    } else {
-//        postgresConfig = PostgreSQLDatabaseConfig(hostname: "localhost", username: "ezekielelin", database: "mcedit")
-//    }
-//
-//    let db = PostgreSQLDatabase(config: postgresConfig)
-//    dbConfig.add(database: db, as: .psql)
 //
 //    var migrationConfig = MigrationConfig()
 //    addDatabaseMigrations(&migrationConfig)

@@ -45,6 +45,8 @@ final class Alert: Model {
     @Field(key: "user_may_hide")
     var userMayHide: Bool
 
+    init() { }
+
     init(id: Int? = nil,
          title: String,
          body: String,
@@ -91,5 +93,3 @@ struct Alert_MigrationCreate: Migration {
         return database.schema(Alert.schema).delete()
     }
 }
-
-extension Alert: Parameter {}

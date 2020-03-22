@@ -58,18 +58,21 @@ final class User: Model {
         try self.init(email: registrationData.email, plaintextPassword: registrationData.password)
     }
     
-    func githubDetails(on container: Container) throws -> EventLoopFuture<GithubUser?> {
+    func githubDetails(on req: Request) -> EventLoopFuture<GithubUser?> {
         var githubFuture: EventLoopFuture<GithubUser?>
         if let access_token = self.githubAccessToken {
             var headers = HTTPHeaders()
             headers.add(name: "Accepts", value: "application/json")
-            
-            githubFuture = try container.client().get("https://api.github.com/user?access_token=\(access_token)", headers: headers).flatMap(to: GithubUser.self) { response in
-                
-                return try response.content.decode(GithubUser.self)
-            }.map(to: GithubUser?.self) { return $0 }
+            headers.add(name: "Authorization", value: "token \(access_token)")
+
+            let uri = URI(string: "https://api.github.com/user")
+            githubFuture = req.client
+                .get(uri, headers: headers)
+                .flatMapThrowing { response -> GithubUser in
+                    return try response.content.decode(GithubUser.self)
+                }
         } else {
-            githubFuture = EventLoopFuture.map(on: container) { return nil }
+            return req.eventLoop.makeSucceededFuture(nil)
         }
         return githubFuture
     }
@@ -110,6 +113,14 @@ struct User_MigrationCreate: Migration {
 
 //MARK:- Authentication
 
+extension User: SessionAuthenticatable {
+    typealias SessionID = User.IDValue
+
+    var sessionID: IDValue? {
+        return self.id
+    }
+}
+
 extension User: ModelUser {
     static var usernameKey = \User.$email
     static var passwordHashKey = \User.$password
@@ -118,13 +129,6 @@ extension User: ModelUser {
         try Bcrypt.verify(password, created: self.password)
     }
 }
-
-extension User: Authenticatable { }
-
-#warning("Disabled sessionauthenticable")
-//extension User: SessionAuthenticatable {
-//    typealias SessionID = <#type#>
-//}
 
 //MARK: Login and Registration objects
 

@@ -19,7 +19,6 @@ enum AuthenticationFailureAction {
 ///
 /// Use `session[redirectorSessionUrlKey]` to get the URL
 struct AuthenticationCheck: Middleware {
-
     /// The action if the user is not logged in
     let unauthenticatedAction: AuthenticationFailureAction
     
@@ -43,28 +42,30 @@ struct AuthenticationCheck: Middleware {
         self.insufficientPrivilegesAction = insufficient
         self.level = level
     }
-    
-    func respond(to req: Request, chainingTo next: Responder) throws -> EventLoopFuture<Response> {
-        guard let user = try req.authenticated(User.self) else {
-            return try unauthenticated(req)
+
+    func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
+        guard let user = request.auth.get(User.self) else {
+            return unauthenticated(request)
         }
         
         guard user.role >= self.level else {
-            return try insufficientPrivileges(req, user: user)
+            return insufficientPrivileges(request, user: user)
         }
         
-        return try next.respond(to: req)
+        return next.respond(to: request)
     }
     
-    private func unauthenticated(_ req: Request) throws -> EventLoopFuture<Response> {
-        return try self.performAction(req, action: self.unauthenticatedAction)
+    private func unauthenticated(_ req: Request) -> EventLoopFuture<Response> {
+        return self.performAction(req, action: self.unauthenticatedAction)
     }
     
-    private func insufficientPrivileges(_ req: Request, user: User) throws -> EventLoopFuture<Response> {
-        return try self.performAction(req, action: self.insufficientPrivilegesAction, for: user)
+    private func insufficientPrivileges(_ req: Request, user: User) -> EventLoopFuture<Response> {
+        return self.performAction(req, action: self.insufficientPrivilegesAction, for: user)
     }
     
-    private func performAction(_ req: Request, action: AuthenticationFailureAction, for user: User? = nil) throws -> EventLoopFuture<Response> {
+    private func performAction(_ req: Request,
+                               action: AuthenticationFailureAction,
+                               for user: User? = nil) -> EventLoopFuture<Response> {
         struct Context: Codable {
             let user: User?
         }
@@ -73,15 +74,14 @@ struct AuthenticationCheck: Middleware {
         switch action {
         case .redirect(let path):
             if req.method == .GET {
-                req.session[redirectorSessionUrlKey] = req.url.string
+                req.session.data[redirectorSessionUrlKey] = req.url.string
             }
 
             return req.eventLoop.makeSucceededFuture(req.redirect(to: path))
         case .accessProhibitedPage:
-            return req.view.render("access-prohibited", ctx)
-                .flatMap { (view) -> Response in
-                return try view.encode(for: req)
-            }
+            return req.view
+                .render("access-prohibited", ctx)
+                .flatMap { $0.encodeResponse(for: req) }
         }
     }
 }
