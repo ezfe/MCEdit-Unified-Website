@@ -36,7 +36,7 @@ class AuthenticationController: RouteCollection {
     func postRegister(_ req: Request) throws -> EventLoopFuture<Response> {
         let data = try req.content.decode(User.RegisterRequest.self)
         
-        return try req.pwnedPasswords.test(password: data.password).flatMap { breached in
+        return req.pwnedPasswords.test(password: data.password).flatMap { breached in
 
                 let success = req.redirect(to: "/")
                 let failure = req.redirect(to: "/auth/register")

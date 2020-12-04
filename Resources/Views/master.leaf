@@ -29,7 +29,7 @@
     <script defer src="https://use.fontawesome.com/releases/v5.8.2/js/solid.js" integrity="sha384-+2/MEhV42Ne5nONkjLVCZFGh5IaEQmfXyvGlsibBiATelTFbVGoLB1sqhczi0hlf" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.8.2/js/brands.js" integrity="sha384-GtvEzzhN52RvAD7CnSR7TcPw555abR8NK28tAqa/GgIDk59o0TsaK6FHglLstzCf" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.8.2/js/fontawesome.js" integrity="sha384-Ia7KZbX22R7DDSbxNmxHqPQ15ceNzg2U4h5A8dy3K47G2fV1k658BTxXjp7rdhXa" crossorigin="anonymous"></script>
-	#get(header-contents)
+	#import("header-contents")
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -40,31 +40,31 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
                 <!-- Home -->
-                <a class="nav-item nav-link #if(nav_page=="home") {active}" href="/">
+                <a class="nav-item nav-link #if(nav_page=="home"):active#endif" href="/">
                     <i class="fa fa-home"></i>
                     #if(nav_page=="home"):
                         <span class="sr-only">(current)</span>
                     #endif
                 </a>
                 <!-- About -->
-                <a class="nav-item nav-link #if(nav_page=="about") {active}" href="/about">
+                <a class="nav-item nav-link #if(nav_page=="about"):active#endif" href="/about">
                     About
-                    #if(nav_page=="about") {<span class="sr-only">(current)</span>}
+                    #if(nav_page=="about"):<span class="sr-only">(current)</span>#endif
                 </a>
                 <!-- Tutorial -->
-                <a class="nav-item nav-link #if(nav_page=="tutorial") {active}" href="/tutorial">
+                <a class="nav-item nav-link #if(nav_page=="tutorial"):active#endif" href="/tutorial">
                     Tutorial
-                    #if(nav_page=="tutorial") {<span class="sr-only">(current)</span>}
+                    #if(nav_page=="tutorial"):<span class="sr-only">(current)</span>#endif
                 </a>
                 <!-- System Requirements -->
-                <a class="nav-item nav-link #if(nav_page=="requirements") {active}" href="/requirements">
+                <a class="nav-item nav-link #if(nav_page=="requirements"):active#endif" href="/requirements">
                     System Requirements
-                    #if(nav_page=="requirements") {<span class="sr-only">(current)</span>}
+                    #if(nav_page=="requirements"):<span class="sr-only">(current)</span>#endif
                 </a>
                 <!-- Contributors -->
-                <a class="nav-item nav-link #if(nav_page=="contributors") {active}" href="/contributors">
+                <a class="nav-item nav-link #if(nav_page=="contributors"):active#endif" href="/contributors">
                     <i class="fa fa-users"></i> Contributors
-                    #if(nav_page=="contributors") {<span class="sr-only">(current)</span>}
+                    #if(nav_page=="contributors"):<span class="sr-only">(current)</span>#endif
                 </a>
                 <!-- Documentation -->
                 <a class="nav-item nav-link" href="/docs/index.html" target="_">

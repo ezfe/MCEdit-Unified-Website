@@ -12,6 +12,8 @@ public func configure(_ app: Application) throws {
     let sessions = SessionsMiddleware(session: app.sessions.driver)
     app.middleware.use(sessions)
 
+    app.middleware.use(FileMiddleware(publicDirectory: "Public"))
+    
     //MARK:- PostgreSQL
     let postgresConfig: PostgresConfiguration
     if let _databaseURL = Environment.get("DATABASE_URL"),
@@ -29,6 +31,10 @@ public func configure(_ app: Application) throws {
 
     app.databases.use(.postgres(configuration: postgresConfig), as: .psql)
 
+    app.migrations.add(Alert_MigrationCreate(), to: .psql)
+    
+    try app.autoMigrate().wait()
+    
     try routes(app)
 }
 //    try services.register(LeafProvider())

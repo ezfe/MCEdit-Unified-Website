@@ -16,7 +16,7 @@ final class Alert: Model {
     ///
     /// This field is managed by PostgreSQL and should
     /// not be set manually for new objects
-    @ID(key: "id")
+    @ID(custom: "id")
     var id: Int?
     
     /// The title of the alert

@@ -18,6 +18,7 @@ final class User: Model {
     ///
     /// This field is managed by PostgreSQL and should
     /// not be set manually for new objects
+    @ID(custom: "id")
     var id: Int?
     
     /// Email address for the user
@@ -113,20 +114,30 @@ struct User_MigrationCreate: Migration {
 
 //MARK:- Authentication
 
-extension User: SessionAuthenticatable {
+extension User: Authenticatable, SessionAuthenticatable {
     typealias SessionID = User.IDValue
 
-    var sessionID: IDValue? {
-        return self.id
+    var sessionID: IDValue {
+        return self.id!
     }
 }
 
-extension User: ModelUser {
-    static var usernameKey = \User.$email
-    static var passwordHashKey = \User.$password
-
+extension User {
     func verify(password: String) throws -> Bool {
         try Bcrypt.verify(password, created: self.password)
+    }
+}
+
+
+struct UserSessionAuthenticator: SessionAuthenticator {
+    typealias User = App.User
+
+    func authenticate(sessionID: User.SessionID, for req: Request) -> EventLoopFuture<Void> {
+        User.find(sessionID, on: req.db).map { user  in
+            if let user = user {
+                req.auth.login(user)
+            }
+        }
     }
 }
 

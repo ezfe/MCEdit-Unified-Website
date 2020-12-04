@@ -3,8 +3,10 @@
         MCEdit Unified – About
     #endexport
 
-    #export("body-contents"):
+    #export("header-contents"):
+    #endexport
 
+    #export("body-contents"):
         #if(error):
             <div class="alert alert-danger" role="alert">
                 An unknown error has occured loading the homepage. If you are looking to download MCEdit, click <a href="https://github.com/Podshot/MCEdit-Unified/releases/latest">here</a>.
@@ -19,7 +21,7 @@
         </div>
         <hr>
         <div align="center">
-            <img src="images/favicon.png">
+            <img src="/favicon.png">
         </div>
         <p>
             MCEdit is a versatile map utility, designed for editing Minecraft maps. With it, you can open a level

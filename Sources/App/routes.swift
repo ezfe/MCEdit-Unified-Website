@@ -6,7 +6,7 @@ import FluentPostgresDriver
 ///
 /// [Learn More →](https://docs.vapor.codes/3.0/getting-started/structure/#routesswift)
 public func routes(_ app: Application) throws {
-    let authed = app.grouped(app.fluent.sessions.middleware(for: User.self))
+    let authed = app.grouped(User.sessionAuthenticator())
     try authed.register(collection: IndexController())
     try authed.grouped("about").register(collection: AboutController())
     try authed.grouped("tutorial").register(collection: TutorialController())
