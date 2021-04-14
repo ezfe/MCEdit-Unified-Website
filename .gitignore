@@ -1,7 +1,5 @@
 .DS_Store
-/.build
-/Packages
-/*.xcodeproj
-
-run-env.sh
-/.swiftpm
+node_modules
+/.svelte
+/build
+/functions
