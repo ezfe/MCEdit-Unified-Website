@@ -80,10 +80,6 @@ import { Button } from 'sveltestrap';
 </div>
 
 <style>
-	.pb-x-05 {
-		padding-bottom: 0.5rem !important;
-	}
-
 	.platform-col {
 		display: flex;
 		flex-direction: column;
