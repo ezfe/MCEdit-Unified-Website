@@ -4,12 +4,12 @@ import Fa from "svelte-fa";
 import { Alert } from "sveltestrap";
 </script>
 
-<Alert color="danger">
+<div class="alert alert-danger" role="alert">
 	<Fa icon={faExclamationCircle} />
 	Notice: This page will undergo many changes please be aware of those changes whenever possible.
 	<hr />
 	Report any issues to the <a class="alert-link" href="https://github.com/Podshot/MCEdit-Unified/issues/new">GitHub Issues</a> page.
-</Alert>
+</div>
 <div class="alert alert-warning" role="alert">
 	<p>
 		<Fa icon={faExclamationCircle} />

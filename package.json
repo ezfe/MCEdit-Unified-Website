@@ -4,11 +4,11 @@
 	"scripts": {
 		"dev": "svelte-kit dev",
 		"build": "svelte-kit build",
-		"start": "scripts/start.sh"
+		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "next",
-		"@sveltejs/kit": "^1.0.0-next.74",
+		"@sveltejs/kit": "next",
 		"svelte": "^3.29.0",
 		"vite": "^2.1.0"
 	},
@@ -18,8 +18,5 @@
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
 		"svelte-fa": "^2.2.0",
 		"sveltestrap": "5.0.0-beta.3"
-	},
-	"engines": {
-		"node": "15.x"
 	}
 }
