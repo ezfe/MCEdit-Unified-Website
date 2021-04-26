@@ -4,6 +4,7 @@
 	"scripts": {
 		"dev": "svelte-kit dev",
 		"build": "svelte-kit build",
+		"start": "scripts/start.sh",
 		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {

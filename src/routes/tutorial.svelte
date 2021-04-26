@@ -1,7 +1,6 @@
 <script>
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
-import Fa from "svelte-fa";
-import { Alert } from "sveltestrap";
+	import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+	import Fa from "svelte-fa";
 </script>
 
 <div class="alert alert-danger" role="alert">
