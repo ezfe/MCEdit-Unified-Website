@@ -26,6 +26,7 @@
 		{
 			href: '/docs/index.html',
 			label: 'Documentation',
+			rel: 'external'
 		},
 		{
 			href: 'https://discord.gg/BTm6jnf',
@@ -49,7 +50,7 @@
 		<div>
 			<Nav navbar>
 				{#each links as link}
-					<NavLink active={path === link.href} href={link.href}>{link.label}</NavLink>
+					<NavLink active={path === link.href} rel={link.rel} href={link.href}>{link.label}</NavLink>
 				{/each}
 			</Nav>
 		</div>

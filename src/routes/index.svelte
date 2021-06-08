@@ -2,14 +2,36 @@
 	import Fa from 'svelte-fa';
 	import { faStar, faHistory, faWind, faCloudDownloadAlt, faCode } from '@fortawesome/free-solid-svg-icons';
 	import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
-import { Button } from 'sveltestrap';
+	import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'sveltestrap';
 
 	let showAllVersions = false;
 
 	function clickShowAll() {
 		showAllVersions = true;
 	}
+
+	let open = true;
+  	const toggle = () => (open = !open);
 </script>
+
+<Modal isOpen={open} {toggle}>
+	<ModalHeader {toggle}>MCEdit Unified for Java 1.12 and Bedrock 1.12</ModalHeader>
+	<ModalBody>
+		<p>
+			MCEdit is not able to open worlds from Java 1.13+ or Bedrock 1.13+
+			If you want to edit these newer format worlds check out Amulet Editor!
+		</p>
+		<p>
+			Amulet Editor is a spiritual successor to MCEdit for Java and
+			Bedrock created by some of the MCEdit Unified developers. It
+			works with the new format (1.13+) as well as the old format (1.12 and before).
+		</p>
+	</ModalBody>
+	<ModalFooter>
+		<a href="https://www.amuletmc.com" class="btn btn-primary">Go to Amulet Editor</a>
+		<Button color="secondary" on:click={toggle}>Continue to MCEdit Unified</Button>
+	</ModalFooter>
+</Modal>
 
 <h3 class="text-center">
 	MCEdit Unified for Java 1.12 and Bedrock
